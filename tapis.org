@@ -54,7 +54,7 @@ pipenv install tapipy
 import os
 from tapipy.tapis import Tapis
 
-t = Tapis(base_url="https://tacc.tapis.io",
+t = Tapis(base_url="https://icicle.tapis.io",
           username=os.getenv("TACC_USERNAME"),
           password=os.getenv("TACC_PASSWORD"))
 
@@ -63,7 +63,7 @@ t.access_token.access_token
     #+end_src
 
     #+RESULTS:
-    : eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9....
+    : eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...
 
   - [X] Check Access to the Tapis API
     #+begin_src jupyter-python
@@ -92,7 +92,7 @@ t.pods.create_pod(pod_id="tuitustestpod", pod_template="neo4j", description="Cre
   #+begin_example
 
   command: None
-  creation_ts: 2022-12-01T16:53:25.686515
+  creation_ts: 2023-01-06T15:34:20.551402
   data_attached: []
   data_requests: []
   description: Creating test pod
@@ -102,7 +102,7 @@ t.pods.create_pod(pod_id="tuitustestpod", pod_template="neo4j", description="Cre
   default:
   port: 7687
   protocol: tcp
-  url: tuitustestpod.pods.tacc.tapis.io
+  url: tuitustestpod.pods.icicle.tapis.io
   persistent_volume:
 
   pod_id: tuitustestpod
@@ -122,7 +122,7 @@ t.pods.create_pod(pod_id="tuitustestpod", pod_template="neo4j", description="Cre
   time_to_stop_default: 43200
   time_to_stop_instance: None
   time_to_stop_ts: None
-  update_ts: 2022-12-01T16:53:25.686533
+  update_ts: 2023-01-06T15:34:20.551422
   #+end_example
 
 
@@ -135,7 +135,7 @@ t.pods.get_pod(pod_id="tuitustestpod")
 #+begin_example
 
 command: None
-creation_ts: 2022-12-01T16:53:25.686515
+creation_ts: 2023-01-06T15:34:20.551402
 data_attached: []
 data_requests: []
 description: Creating test pod
@@ -145,7 +145,7 @@ networking:
 default:
 port: 7687
 protocol: tcp
-url: tuitustestpod.pods.tacc.tapis.io
+url: tuitustestpod.pods.icicle.tapis.io
 persistent_volume:
 
 pod_id: tuitustestpod
@@ -157,17 +157,17 @@ mem_limit: 3072
 mem_request: 256
 roles_inherited: []
 roles_required: []
-start_instance_ts: None
-status: CREATING CONTAINER
+start_instance_ts: 2023-01-06T16:06:34.268462
+status: RUNNING
 status_container:
-message: Pod is still initializing.
-phase: Pending
-start_time: 2023-01-06T13:54:03.000000
+message: Pod is running.
+phase: Running
+start_time: 2023-01-06T16:06:17.000000
 status_requested: ON
 time_to_stop_default: 43200
 time_to_stop_instance: None
-time_to_stop_ts: None
-update_ts: 2022-12-01T16:53:25.686533
+time_to_stop_ts: 2023-01-07T04:06:34.270380
+update_ts: 2023-01-06T15:34:20.551422
 #+end_example
 
 The logs can be retrieved using the ~get_pod_logs()~ method.
@@ -176,17 +176,70 @@ t.pods.get_pod_logs(pod_id="tuitustestpod")
 #+end_src
 
 #+RESULTS:
-:
-: logs: Fetching versions.json for Plugin 'apoc' from https://github.com/neo4j/apoc/blob/master/versions.json
-: parse error: Invalid numeric literal at line 8, column 10
-: Error: No jar URL found for version '4.4.16' in versions.json from 'https://github.com/neo4j/apoc/blob/master/versions.json'
+#+begin_example
+
+logs: 2023-01-06 16:06:39.132+0000 INFO  Starting...
+2023-01-06 16:06:40.347+0000 INFO  This instance is ServerId{e6102ec8} (e6102ec8-c9a0-4650-b0df-b523b7475f5a)
+2023-01-06 16:06:42.487+0000 INFO  ======== Neo4j 4.4.16 ========
+2023-01-06 16:06:48.846+0000 INFO  [system/00000000] successfully initialized: CREATE USER podsservice IF NOT EXISTS SET PLAINTEXT PASSWORD 'servicepass' SET PASSWORD CHANGE NOT REQUIRED
+2023-01-06 16:06:49.145+0000 INFO  [system/00000000] successfully initialized: CREATE USER tuitustestpod IF NOT EXISTS SET PLAINTEXT PASSWORD 'userpass' SET PASSWORD CHANGE NOT REQUIRED
+2023-01-06 16:06:56.019+0000 INFO  Upgrading security graph to latest version
+2023-01-06 16:06:56.020+0000 INFO  Setting version for 'security-users' to 2
+2023-01-06 16:06:56.022+0000 INFO  Upgrading 'security-users' version property from 2 to 3
+2023-01-06 16:06:56.283+0000 INFO  Called db.clearQueryCaches(): Query cache already empty.
+2023-01-06 16:06:56.439+0000 INFO  Bolt enabled on [0:0:0:0:0:0:0:0%0]:7687.
+2023-01-06 16:06:57.632+0000 INFO  Remote interface available at http://pods-tacc-icicle-tuitustestpod:7474/
+2023-01-06 16:06:57.637+0000 INFO  id: 8ACF4A544C1C241897F7E92DEED8D4D2266674C622192A7F52378EF69EA3644A
+2023-01-06 16:06:57.637+0000 INFO  name: system
+2023-01-06 16:06:57.637+0000 INFO  creationDate: 2023-01-06T16:06:43.669Z
+2023-01-06 16:06:57.637+0000 INFO  Started.
+#+end_example
 
 List of all pods - ~get_pods()~
-#+begin_src jupyter-python :results output verbatim
-t.pods.get_pods()
+#+begin_src jupyter-python :results raw drawer
+print(t.pods.get_pods())
 #+end_src
 
 #+RESULTS:
+:results:
+#+begin_example
+[
+command: None
+creation_ts: 2023-01-06T15:34:20.551402
+data_attached: []
+data_requests: []
+description: Creating test pod
+environment_variables: 
+
+networking: 
+default: 
+port: 7687
+protocol: tcp
+url: tuitustestpod.pods.icicle.tapis.io
+persistent_volume: 
+
+pod_id: tuitustestpod
+pod_template: neo4j
+resources: 
+cpu_limit: 2000
+cpu_request: 250
+mem_limit: 3072
+mem_request: 256
+roles_inherited: []
+roles_required: []
+start_instance_ts: 2023-01-06T16:06:34.268462
+status: RUNNING
+status_container: 
+message: Pod is running.
+phase: Running
+start_time: 2023-01-06T16:06:17.000000
+status_requested: ON
+time_to_stop_default: 43200
+time_to_stop_instance: None
+time_to_stop_ts: 2023-01-07T04:06:34.270380
+update_ts: 2023-01-06T15:34:20.551422]
+#+end_example
+:end:
 
 
 Any pod can be deleted using the ~delete_pod(pod_id)~ method.
