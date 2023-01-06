@@ -1,0 +1,198 @@
+#+title: Tapis
+#+author: Chahak Mehta
+#+date: <2023-01-03 Tue>
+#+property: header-args :session tapis :eval no-export :exports both :async yes
+
+* =tapis-cli=
+
+#+begin_quote
+Tapis CLI is a human-friendly, scriptable command line interface, implemented in Python, that helps scientists and engineers build and manage scalable computational and data science workflow projects using the [[https://tacc-cloud.readthedocs.io/projects/agave/en/latest/][Tapis]] platform.
+#+end_quote
+
+#+begin_src shell
+tapis --version
+#+end_src
+
+#+RESULTS:
+: tapis 1.0.6
+
+To initialize a host, run ~tapis auth init~
+
+#+begin_src shell :results raw
+tapis auth init
+#+end_src
+
+#+RESULTS:
++--------------------+---------------------------------+
+| Field              | Value                           |
++--------------------+---------------------------------+
+| tenant_id          | tacc.prod                       |
+| username           | chahak                          |
+| api_key            | zfSkhpVnZs_wLalschPFVd8W4tUa    |
+| access_token       | db333daa6f7cfdbb3ac091d46499130 |
+| expires_at         | Tue Jan  3 17:08:58 2023        |
+| verify             | True                            |
+| registry_url       | https://index.docker.io         |
+| registry_username  | chahak                          |
+| registry_password  | a*********U                     |
+| registry_namespace | chahak                          |
++--------------------+---------------------------------+
+* Setting up a neo4j pod
+Ref: https://tapis.readthedocs.io/en/latest/technical/pods.html
+
+- [X] Create TACC Account
+  + Username: =chahak=
+- [X] Create Docker
+  + Username: =chahak=
+- [X] Install Tapis Python SDK
+  #+begin_src shell
+pipenv install tapipy
+  #+end_src
+- [X] TACC OAuth
+  - [X] Create Tapis Client Object
+    #+begin_src jupyter-python
+import os
+from tapipy.tapis import Tapis
+
+t = Tapis(base_url="https://tacc.tapis.io",
+          username=os.getenv("TACC_USERNAME"),
+          password=os.getenv("TACC_PASSWORD"))
+
+t.get_tokens()
+t.access_token.access_token
+    #+end_src
+
+    #+RESULTS:
+    : eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9....
+
+  - [X] Check Access to the Tapis API
+    #+begin_src jupyter-python
+t.authenticator.get_profile(username=os.getenv("TACC_USERNAME"))
+    #+end_src
+
+    #+RESULTS:
+    :
+    : create_time: None
+    : dn: cn=chahak,ou=People,dc=tacc,dc=utexas,dc=edu
+    : email: chahak@utexas.edu
+    : given_name: Chahak
+    : last_name: Mehta
+    : mobile_phone: None
+    : phone: None
+    : uid: 875122
+    : username: chahak
+
+- [X] Registering a templated Pod
+  To register a pod, we use the ~pods.create_pod()~ method.
+  #+begin_src jupyter-python
+t.pods.create_pod(pod_id="tuitustestpod", pod_template="neo4j", description="Creating test pod")
+  #+end_src
+
+  #+RESULTS:
+  #+begin_example
+
+  command: None
+  creation_ts: 2022-12-01T16:53:25.686515
+  data_attached: []
+  data_requests: []
+  description: Creating test pod
+  environment_variables:
+
+  networking:
+  default:
+  port: 7687
+  protocol: tcp
+  url: tuitustestpod.pods.tacc.tapis.io
+  persistent_volume:
+
+  pod_id: tuitustestpod
+  pod_template: neo4j
+  resources:
+  cpu_limit: 2000
+  cpu_request: 250
+  mem_limit: 3072
+  mem_request: 256
+  roles_inherited: []
+  roles_required: []
+  start_instance_ts: None
+  status: REQUESTED
+  status_container:
+
+  status_requested: ON
+  time_to_stop_default: 43200
+  time_to_stop_instance: None
+  time_to_stop_ts: None
+  update_ts: 2022-12-01T16:53:25.686533
+  #+end_example
+
+
+The details and status of this =REQUESTED= pod can be accessed using the ~get_pod()~ method.
+#+begin_src jupyter-python
+t.pods.get_pod(pod_id="tuitustestpod")
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+command: None
+creation_ts: 2022-12-01T16:53:25.686515
+data_attached: []
+data_requests: []
+description: Creating test pod
+environment_variables:
+
+networking:
+default:
+port: 7687
+protocol: tcp
+url: tuitustestpod.pods.tacc.tapis.io
+persistent_volume:
+
+pod_id: tuitustestpod
+pod_template: neo4j
+resources:
+cpu_limit: 2000
+cpu_request: 250
+mem_limit: 3072
+mem_request: 256
+roles_inherited: []
+roles_required: []
+start_instance_ts: None
+status: CREATING CONTAINER
+status_container:
+message: Pod is still initializing.
+phase: Pending
+start_time: 2023-01-06T13:54:03.000000
+status_requested: ON
+time_to_stop_default: 43200
+time_to_stop_instance: None
+time_to_stop_ts: None
+update_ts: 2022-12-01T16:53:25.686533
+#+end_example
+
+The logs can be retrieved using the ~get_pod_logs()~ method.
+#+begin_src jupyter-python
+t.pods.get_pod_logs(pod_id="tuitustestpod")
+#+end_src
+
+#+RESULTS:
+:
+: logs: Fetching versions.json for Plugin 'apoc' from https://github.com/neo4j/apoc/blob/master/versions.json
+: parse error: Invalid numeric literal at line 8, column 10
+: Error: No jar URL found for version '4.4.16' in versions.json from 'https://github.com/neo4j/apoc/blob/master/versions.json'
+
+List of all pods - ~get_pods()~
+#+begin_src jupyter-python :results output verbatim
+t.pods.get_pods()
+#+end_src
+
+#+RESULTS:
+
+
+Any pod can be deleted using the ~delete_pod(pod_id)~ method.
+#+begin_src jupyter-python :results raw
+t.pods.delete_pod(pod_id="tuitustestpod")
+#+end_src
+
+#+RESULTS:
+| message | : | Pod successfully deleted. | metadata | : | nil | result | : |   | status | : | success | version | : | dev |
