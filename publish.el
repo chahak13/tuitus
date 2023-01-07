@@ -28,8 +28,8 @@
 (defvar publish-tuitus-css "<link rel=\"stylesheet\" href=\"../style.css\" type=\"text/css\"/>")
 (defvar publish-tuitus-header "<div id=\"updated\">Updated: %C</div>
 <nav>
-<a href=\"/\">Home</a>
-<a href=\"/files/sitemap.html\">Posts</a>
+<a href=\"/tuitus/\">Home</a>
+<a href=\"/tuitus/files/sitemap.html\">Posts</a>
 </nav>")
 
 (defvar publish-tuitus-footer "<hr/>
@@ -56,7 +56,7 @@ Created with %c
          :publishing-function org-html-publish-to-html
 
          :html-head "<link rel=\"stylesheet\" href=\"style.css\" type=\"text/css\"/>"
-         :html-preamble "<div id=\"updated\">Updated: %C</div> <nav> <a href=\"/files/sitemap.html\">Posts</a>"
+         :html-preamble "<div id=\"updated\">Updated: %C</div> <nav> <a href=\"/tuitus/files/sitemap.html\">Posts</a>"
          :html-postamble ,publish-tuitus-footer)
 
         ("pages"
