@@ -1,0 +1,11 @@
+#+title: Tuitus CI project
+#+options: toc:nil num:nil
+
+This is a general playground that covers different reading, testing, literature survey etc. that I will be doing while working on the Tuitus project.
+
+-- Chahak
+
+* Posts
+#+html: <div class="entries">
+#+include: "files/sitemap.org"
+#+html: </div>

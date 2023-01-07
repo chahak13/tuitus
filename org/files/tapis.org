@@ -155,7 +155,6 @@ tapis files list agave://designsafe.storage.published/PRJ-3484
 | eo_0_631_sigv_40_CSR_0_190_Tau_0_.csv            | 2 months ago |    48529 |
 +--------------------------------------------------+--------------+----------+
 
-
 * Setting up a neo4j pod
 Ref: https://tapis.readthedocs.io/en/latest/technical/pods.html
 
