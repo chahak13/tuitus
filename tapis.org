@@ -23,20 +23,139 @@ tapis auth init
 #+end_src
 
 #+RESULTS:
-+--------------------+---------------------------------+
-| Field              | Value                           |
-+--------------------+---------------------------------+
-| tenant_id          | tacc.prod                       |
-| username           | chahak                          |
-| api_key            | zfSkhpVnZs_wLalschPFVd8W4tUa    |
-| access_token       | db333daa6f7cfdbb3ac091d46499130 |
-| expires_at         | Tue Jan  3 17:08:58 2023        |
-| verify             | True                            |
-| registry_url       | https://index.docker.io         |
-| registry_username  | chahak                          |
-| registry_password  | a*********U                     |
-| registry_namespace | chahak                          |
-+--------------------+---------------------------------+
++--------------------+----------------------------------+
+| Field              | Value                            |
++--------------------+----------------------------------+
+| tenant_id          | designsafe                       |
+| username           | chahak                           |
+| api_key            | Q***************************     |
+| access_token       | f******************************* |
+| expires_at         | Sat Jan  7 17:52:20 2023         |
+| verify             | True                             |
+| registry_url       | https://index.docker.io          |
+| registry_username  | chahak                           |
+| registry_password  | a*********U                      |
+| registry_namespace | chahak                           |
++--------------------+----------------------------------+
+
+To list the files present in my default folder, I simply use the ~tapis files list~ command with the default storage location.
+#+begin_src shell :results raw
+tapis files list agave://designsafe.storage.default/chahak/
+#+end_src
+
+#+RESULTS:
++--------------------+--------------+--------+
+| name               | lastModified | length |
++--------------------+--------------+--------+
+| test-datadepot.txt | 4 hours ago  |      0 |
++--------------------+--------------+--------+
+
+In this call, the =designsafe.storage.default= is the /systemId/ where the data is stored and /chahak/ is my username (and here, the default path). Both these information can be gleaned from the URL on the browser. For example, if the url is
+
+#+begin_quote
+https://www.designsafe-ci.org/data/browser/public/designsafe.storage.community/Jupyter%20Notebooks%20for%20Civil%20Engineering%20Courses/University_of_Washington/freeFieldEffectiveJupyter
+#+end_quote
+
+then, ~systemId=designsafe.storage.community~ and ~path=Jupyter%20Notebooks%20for%20Civil%20Engineering%20Courses~. Therefore, the call would begin
+
+#+begin_src shell :results raw
+tapis files list agave://designsafe.storage.community/Jupyter%20Notebooks%20for%20Civil%20Engineering%20Courses/University_of_Washington/freeFieldEffectiveJupyter
+#+end_src
+
+#+RESULTS:
++---------------------------------------------------------------+--------------+--------+
+| name                                                          | lastModified | length |
++---------------------------------------------------------------+--------------+--------+
+| ShortReport.rst                                               | 8 months ago |   1380 |
+| ShortReport.tex                                               | 8 months ago |   1863 |
+| exampleDescription.pptx                                       | 8 months ago |  51605 |
+| freeFieldEffective.tcl                                        | 8 months ago |  17925 |
+| freeFieldEffectiveJupyter_community.ipynb                     | 8 months ago | 139950 |
+| freeFieldEffectiveJupyter_community_2022-07-25 22-40-57.ipynb | 6 months ago | 140107 |
+| macros.tex                                                    | 8 months ago |   1954 |
+| plotAcc.py                                                    | 8 months ago |   1626 |
+| plotPorepressure.py                                           | 8 months ago |    871 |
+| plotProfile.py                                                | 8 months ago |   2791 |
+| plotStressStrain.py                                           | 8 months ago |    620 |
+| respSpectra.py                                                | 8 months ago |   2340 |
+| schematic.eps                                                 | 8 months ago | 908760 |
+| schematic.png                                                 | 8 months ago |   5246 |
+| short.tex                                                     | 8 months ago |   3346 |
+| untitled.py                                                   | 8 months ago |      0 |
+| velocity.input                                                | 8 months ago | 100260 |
++---------------------------------------------------------------+--------------+--------+
+
+Similarly, if we want the information of a project, say https://www.designsafe-ci.org/data/browser/public/designsafe.storage.published/PRJ-3484,
+
+#+begin_src shell :results raw
+tapis files list agave://designsafe.storage.published/PRJ-3484
+#+end_src
+
+#+RESULTS:
++--------------------------------------------------+--------------+----------+
+| name                                             | lastModified |   length |
++--------------------------------------------------+--------------+----------+
+| CDSS_ResultsPlot.m                               | 2 months ago |     3780 |
+| Direct Simple Shear Experimental Setup.pdf       | 2 months ago |   333090 |
+| Direct Simple Shear Test Sensors.pdf             | 2 months ago |   132480 |
+| Summary Report on Ottawa F65 Sand CDSS Tests.pdf | 2 months ago | 11470561 |
+| eo_0_576_sigv_40_CSR_0_160_Tau_0_.csv            | 2 months ago |   367421 |
+| eo_0_576_sigv_40_CSR_0_170_Tau_0_.csv            | 2 months ago |   266759 |
+| eo_0_576_sigv_40_CSR_0_190_Tau_0_.csv            | 2 months ago |   133005 |
+| eo_0_576_sigv_40_CSR_0_210_Tau_0_.csv            | 2 months ago |   106531 |
+| eo_0_576_sigv_40_CSR_0_240_Tau_0_.csv            | 2 months ago |    73409 |
+| eo_0_576_sigv_40_CSR_0_250_Tau_0_.csv            | 2 months ago |    48243 |
+| eo_0_576_sigv_40_CSR_0_300_Tau_0_.csv            | 2 months ago |    20694 |
+| eo_0_588_sigv_40_CSR_0_150_Tau_0_.csv            | 2 months ago |   426255 |
+| eo_0_588_sigv_40_CSR_0_170_Tau_0_.csv            | 2 months ago |   145600 |
+| eo_0_588_sigv_40_CSR_0_200_Tau_0_.csv            | 2 months ago |    75184 |
+| eo_0_588_sigv_40_CSR_0_230_Tau_0_.csv            | 2 months ago |    57140 |
+| eo_0_600_sigv_100_CSR_0_170_Tau_0_.csv           | 2 months ago |    76043 |
+| eo_0_600_sigv_100_CSR_0_180_Tau_0_.csv           | 2 months ago |    39150 |
+| eo_0_600_sigv_100_CSR_0_190_Tau_0_.csv           | 2 months ago |    24488 |
+| eo_0_600_sigv_100_CSR_0_200_Tau_0_.csv           | 2 months ago |    29512 |
+| eo_0_600_sigv_100_CSR_0_210_Tau_0_.csv           | 2 months ago |    20205 |
+| eo_0_600_sigv_100_CSR_0_220_Tau_0_.csv           | 2 months ago |    19307 |
+| eo_0_600_sigv_100_CSR_0_250_Tau_0_.csv           | 2 months ago |    11603 |
+| eo_0_601_sigv_100_CSR_0_150_Tau_30_.csv          | 2 months ago |  1350936 |
+| eo_0_601_sigv_100_CSR_0_150_Tau_40_.csv          | 2 months ago |   740401 |
+| eo_0_601_sigv_100_CSR_0_200_Tau_30_.csv          | 2 months ago |   111957 |
+| eo_0_601_sigv_100_CSR_0_200_Tau_40_.csv          | 2 months ago |   194061 |
+| eo_0_601_sigv_100_CSR_0_250_Tau_30_.csv          | 2 months ago |    50388 |
+| eo_0_601_sigv_100_CSR_0_250_Tau_40_.csv          | 2 months ago |    65815 |
+| eo_0_601_sigv_100_CSR_0_300_Tau_30_.csv          | 2 months ago |    22568 |
+| eo_0_601_sigv_100_CSR_0_300_Tau_40_.csv          | 2 months ago |    41252 |
+| eo_0_601_sigv_40_CSR_0_150_Tau_0_.csv            | 2 months ago |   253281 |
+| eo_0_601_sigv_40_CSR_0_170_Tau_0_.csv            | 2 months ago |    95541 |
+| eo_0_601_sigv_40_CSR_0_190_Tau_0_.csv            | 2 months ago |    62701 |
+| eo_0_601_sigv_40_CSR_0_200_Tau_0_.csv            | 2 months ago |    51772 |
+| eo_0_601_sigv_40_CSR_0_200_Tau_10_.csv           | 2 months ago |   956617 |
+| eo_0_601_sigv_40_CSR_0_210_Tau_0_.csv            | 2 months ago |    45227 |
+| eo_0_601_sigv_40_CSR_0_220_Tau_0_.csv            | 2 months ago |    28760 |
+| eo_0_601_sigv_40_CSR_0_220_Tau_10_.csv           | 2 months ago |   428522 |
+| eo_0_601_sigv_40_CSR_0_220_Tau_15_.csv           | 2 months ago |  2254872 |
+| eo_0_601_sigv_40_CSR_0_230_Tau_10_.csv           | 2 months ago |   351036 |
+| eo_0_601_sigv_40_CSR_0_230_Tau_15_.csv           | 2 months ago |  1757060 |
+| eo_0_601_sigv_40_CSR_0_240_Tau_10_.csv           | 2 months ago |   282245 |
+| eo_0_601_sigv_40_CSR_0_250_Tau_0_.csv            | 2 months ago |    12117 |
+| eo_0_601_sigv_40_CSR_0_250_Tau_10_.csv           | 2 months ago |   204689 |
+| eo_0_601_sigv_40_CSR_0_250_Tau_15_.csv           | 2 months ago |   661142 |
+| eo_0_601_sigv_40_CSR_0_270_Tau_10_.csv           | 2 months ago |   196049 |
+| eo_0_601_sigv_40_CSR_0_270_Tau_15_.csv           | 2 months ago |   688310 |
+| eo_0_601_sigv_40_CSR_0_300_Tau_10_.csv           | 2 months ago |    40408 |
+| eo_0_601_sigv_40_CSR_0_300_Tau_15_.csv           | 2 months ago |   447705 |
+| eo_0_601_sigv_40_CSR_0_320_Tau_15_.csv           | 2 months ago |   447356 |
+| eo_0_601_sigv_40_CSR_0_350_Tau_15_.csv           | 2 months ago |   128002 |
+| eo_0_631_sigv_40_CSR_0_100_Tau_0_.csv            | 2 months ago |   819420 |
+| eo_0_631_sigv_40_CSR_0_120_Tau_0_.csv            | 2 months ago |   219298 |
+| eo_0_631_sigv_40_CSR_0_140_Tau_0_.csv            | 2 months ago |   138572 |
+| eo_0_631_sigv_40_CSR_0_150_Tau_0_.csv            | 2 months ago |    91315 |
+| eo_0_631_sigv_40_CSR_0_170_Tau_0_.csv            | 2 months ago |    54473 |
+| eo_0_631_sigv_40_CSR_0_180_Tau_0_.csv            | 2 months ago |    58544 |
+| eo_0_631_sigv_40_CSR_0_190_Tau_0_.csv            | 2 months ago |    48529 |
++--------------------------------------------------+--------------+----------+
+
+
 * Setting up a neo4j pod
 Ref: https://tapis.readthedocs.io/en/latest/technical/pods.html
 
@@ -249,3 +368,49 @@ t.pods.delete_pod(pod_id="tuitustestpod")
 
 #+RESULTS:
 | message | : | Pod successfully deleted. | metadata | : | nil | result | : |   | status | : | success | version | : | dev |
+* Fetching file information using =tapipy=
++ Create ~Tapis~ object and generate a token.
+  #+begin_src jupyter-python
+import os
+from tapipy.tapis import Tapis
+
+t = Tapis(base_url="https://designsafe.tapis.io",
+          username=os.getenv("TACC_USERNAME"),
+          password=os.getenv("TACC_PASSWORD"))
+t.get_tokens()
+t.access_token
+  #+end_src
+
+  #+RESULTS:
+  : 
+  : access_token: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9....
+  : claims: {'jti': '5b01dd64-5e10-46f5-949a-b7129c5b2f51', 'iss': 'https://designsafe.tapis.io/v3/tokens', 'sub': 'chahak@designsafe', 'tapis/tenant_id': 'designsafe', 'tapis/token_type': 'access', 'tapis/delegation': False, 'tapis/delegation_sub': None, 'tapis/username': 'chahak', 'tapis/account_type': 'user', 'exp': 1673104999, 'tapis/client_id': None, 'tapis/grant_type': 'password'}
+  : expires_at: 2023-01-07 15:23:19+00:00
+  : expires_in: <function Tapis.add_claims_to_token.<locals>._expires_in at 0x7f1906abb790>
+  : jti: 5b01dd64-5e10-46f5-949a-b7129c5b2f51
+  : original_ttl: 14400
+
+  Using the ~systemId~ as =designsafe.storage.default=, fetch files.
+  #+begin_src jupyter-python
+t.files.listFiles(systemId="designsafe.storage.default", path="chahak")
+  #+end_src
+
+  #+RESULTS:
+  :RESULTS:
+  # [goto error]
+  #+begin_example
+  ---------------------------------------------------------------------------
+  NotFoundError                             Traceback (most recent call last)
+  Cell In[23], line 1
+  ----> 1 t.files.listFiles(systemId="designsafe.storage.default", path="chahak")
+
+  File ~/.local/share/virtualenvs/tuitus-75BIUZJs/lib/python3.9/site-packages/tapipy/tapis.py:1191, in Operation.__call__(self, **kwargs)
+     1189     raise errors.ForbiddenError(msg=error_msg, version=version, request=r, response=resp)
+     1190 if resp.status_code == 404:
+  -> 1191     raise errors.NotFoundError(msg=error_msg, version=version, request=r, response=resp)
+     1192 if resp.status_code == 503:
+     1193     raise errors.ServiceUnavailableError(msg=error_msg, version=version, request=r, response=resp)
+
+  NotFoundError: message: SYSAPI_NOT_FOUND Record not found. jwtTenant: admin jwtUser: files OboTenant: designsafe OboUser: chahak System: designsafe.storage.default
+  #+end_example
+  :END:
