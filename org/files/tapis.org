@@ -556,3 +556,21 @@ ag = Agave.restore()
 #+end_src
 
 #+RESULTS:
+
+#+begin_src jupyter-python
+rsp = ag.files.download(systemId="designsafe.storage.published", filePath="PRJ-3484/eo_0_631_sigv_40_CSR_0_190_Tau_0_.csv")
+if isinstance(rsp, dict):
+    raise Error(f"Failed to download")
+with open('test.csv', 'wb') as dest_file:
+    for block in rsp.iter_content(4096):
+        if not block:
+            break
+        dest_file.write(block)
+
+print(os.path.isfile('test.csv'))
+#+end_src
+
+#+RESULTS:
+: True
+
+This tests works. So, I can create a function to do this and create a folder structure with files based on the experiment titles.
