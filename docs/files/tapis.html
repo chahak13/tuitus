@@ -1,17 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2023-01-07 Sat 18:17 -->
+<!-- 2023-01-10 Tue 18:22 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Tapis</title>
 <meta name="author" content="Chahak Mehta" />
 <meta name="generator" content="Org Mode" />
 <link rel="stylesheet" href="../style.css" type="text/css"/>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        displayAlign: "center",
+        displayIndent: "0em",
+
+        "HTML-CSS": { scale: 100,
+                        linebreaks: { automatic: "false" },
+                        webFont: "TeX"
+                       },
+        SVG: {scale: 100,
+              linebreaks: { automatic: "false" },
+              font: "TeX"},
+        NativeMML: {scale: 100},
+        TeX: { equationNumbers: {autoNumber: "AMS"},
+               MultLineWidth: "85%",
+               TagSide: "right",
+               TagIndent: ".8em"
+             }
+});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="preamble" class="status">
-<div id="updated">Updated: 2023-01-07 Sat 17:16</div>
+<div id="updated">Updated: 2023-01-10 Tue 18:22</div>
 <nav>
 <a href="/tuitus/">Home</a>
 <a href="/tuitus/files/sitemap.html">Posts</a>
@@ -27,6 +48,13 @@
 <li><a href="#org321ecc1">1. <kbd>tapis-cli</kbd></a></li>
 <li><a href="#org5bf7cbf">2. Setting up a neo4j pod</a></li>
 <li><a href="#orgd92a202">3. Fetching file information using <kbd>tapipy</kbd></a></li>
+<li><a href="#org5a0b413">4. Get model configurations for experiments</a></li>
+<li><a href="#orgafbde02">5. Use <code>requests</code> module to retrieve files for projects</a>
+<ul>
+<li><a href="#orgd9ebc63">5.1. Get a list of projects</a></li>
+<li><a href="#orgc3d4da4">5.2. Get files for a project</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </nav>
@@ -508,7 +536,7 @@ To register a pod, we use the <code>pods.create_pod()</code> method.
 </pre>
 </div>
 
-<pre class="example" id="org9560340">
+<pre class="example" id="org7d0d84a">
 
   command: None
   creation_ts: 2023-01-06T15:34:20.551402
@@ -554,7 +582,7 @@ The details and status of this <kbd>REQUESTED</kbd> pod can be accessed using th
 </pre>
 </div>
 
-<pre class="example" id="org82f1c39">
+<pre class="example" id="org88eb709">
 
 command: None
 creation_ts: 2023-01-06T15:34:20.551402
@@ -600,7 +628,7 @@ The logs can be retrieved using the <code>get_pod_logs()</code> method.
 </pre>
 </div>
 
-<pre class="example" id="org7d0d84a">
+<pre class="example" id="org97abc51">
 
 logs: 2023-01-06 16:06:39.132+0000 INFO  Starting...
 2023-01-06 16:06:40.347+0000 INFO  This instance is ServerId{e6102ec8} (e6102ec8-c9a0-4650-b0df-b523b7475f5a)
@@ -627,7 +655,7 @@ List of all pods - <code>get_pods()</code>
 </pre>
 </div>
 
-<pre class="example" id="orgf734457">
+<pre class="example" id="org9d6a605">
 [
 command: None
 creation_ts: 2023-01-06T15:34:20.551402
@@ -745,20 +773,9 @@ Create <code>Tapis</code> object and generate a token.
           <span style="color: #FBB829;">username</span><span style="color: #EF2F27;">=</span>os.<span style="color: #918175; font-style: italic;">getenv</span>(<span style="color: #98BC37;">"TACC_USERNAME"</span>),
           <span style="color: #FBB829;">password</span><span style="color: #EF2F27;">=</span>os.<span style="color: #918175; font-style: italic;">getenv</span>(<span style="color: #98BC37;">"TACC_PASSWORD"</span>))
 t.<span style="color: #918175; font-style: italic;">get_tokens</span>()
-t.<span style="color: #FF5C8F; font-style: italic;">access_token</span>
+<span style="color: #918175; font-style: italic;"># t.access_token</span>
 </pre>
 </div>
-
-<pre class="example">
-
-access_token: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9....
-claims: {'jti': '5b01dd64-5e10-46f5-949a-b7129c5b2f51', 'iss': 'https://designsafe.tapis.io/v3/tokens', 'sub': 'chahak@designsafe', 'tapis/tenant_id': 'designsafe', 'tapis/token_type': 'access', 'tapis/delegation': False, 'tapis/delegation_sub': None, 'tapis/username': 'chahak', 'tapis/account_type': 'user', 'exp': 1673104999, 'tapis/client_id': None, 'tapis/grant_type': 'password'}
-expires_at: 2023-01-07 15:23:19+00:00
-expires_in: &lt;function Tapis.add_claims_to_token.&lt;locals&gt;._expires_in at 0x7f1906abb790&gt;
-jti: 5b01dd64-5e10-46f5-949a-b7129c5b2f51
-original_ttl: 14400
-</pre>
-
 
 <p>
 Using the <code>systemId</code> as <kbd>designsafe.storage.default</kbd>, fetch files.
@@ -768,10 +785,10 @@ Using the <code>systemId</code> as <kbd>designsafe.storage.default</kbd>, fetch 
 </pre>
 </div>
 
-<pre class="example" id="org8fea3df">
+<pre class="example" id="org2aa0409">
   ---------------------------------------------------------------------------
   NotFoundError                             Traceback (most recent call last)
-  Cell In[23], line 1
+  Cell In[6], line 1
   ----&gt; 1 t.files.listFiles(systemId="designsafe.storage.default", path="chahak")
 
   File ~/.local/share/virtualenvs/tuitus-75BIUZJs/lib/python3.9/site-packages/tapipy/tapis.py:1191, in Operation.__call__(self, **kwargs)
@@ -782,8 +799,188 @@ Using the <code>systemId</code> as <kbd>designsafe.storage.default</kbd>, fetch 
      1193     raise errors.ServiceUnavailableError(msg=error_msg, version=version, request=r, response=resp)
 
   NotFoundError: message: SYSAPI_NOT_FOUND Record not found. jwtTenant: admin jwtUser: files OboTenant: designsafe OboUser: chahak System: designsafe.storage.default
-</pre></li>
+</pre>
+
+<p>
+Seems like tapipy is using v3 apis which doesn&rsquo;t seem to have any systems that it retrieves via <code>getSystems()</code> on <kbd>designsafe</kbd>. Not sure if I can work with this right now.
+</p></li>
 </ul>
+</div>
+</div>
+<div id="outline-container-org5a0b413" class="outline-2">
+<h2 id="org5a0b413"><span class="section-number-2">4.</span> Get model configurations for experiments</h2>
+<div class="outline-text-2" id="text-4">
+<ul class="org-ul">
+<li>I&rsquo;m trying to find a way to get information about the model configurations and experiment setup on this page. I found using inspect element that there is an API call to <a href="https://www.designsafe-ci.org/api/projects/publication/PRJ-3484/">https://www.designsafe-ci.org/api/projects/publication/PRJ-3484/</a> and that has a field for <kbd>modelConfigs</kbd> that has experiments but it has <kbd>associationIds</kbd> which are UUIDs if I&rsquo;m not wrong, and the above API is the only way I could find to resolve UUIDs but it doesn&rsquo;t seem to be working.</li>
+<li>According to Dr. Krishna, UUID lookup is not available in designsafe yet so letting this be for now.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgafbde02" class="outline-2">
+<h2 id="orgafbde02"><span class="section-number-2">5.</span> Use <code>requests</code> module to retrieve files for projects</h2>
+<div class="outline-text-2" id="text-5">
+<ul class="org-ul">
+<li>Even without model configs for experiments, next thing to do is to get all the files for all the projects.</li>
+</ul>
+</div>
+<div id="outline-container-orgd9ebc63" class="outline-3">
+<h3 id="orgd9ebc63"><span class="section-number-3">5.1.</span> Get a list of projects</h3>
+<div class="outline-text-3" id="text-5-1">
+<p>
+Using the <code>requests</code> module, we can create a request to <kbd>https://designsafe-ci.org/api/publications/listing</kbd> to get a list of the projects.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python"><span style="color: #EF2F27;">from</span> pprint <span style="color: #EF2F27;">import</span> pprint
+<span style="color: #EF2F27;">import</span> requests
+
+<span style="color: #0AAEB3;">url</span> <span style="color: #EF2F27;">=</span> <span style="color: #98BC37;">"https://designsafe-ci.org/api/publications/listing"</span>
+
+<span style="color: #0AAEB3;">querystring</span> <span style="color: #EF2F27;">=</span> {<span style="color: #98BC37;">"limit"</span>:<span style="color: #98BC37;">"3"</span>}
+
+<span style="color: #0AAEB3;">payload</span> <span style="color: #EF2F27;">=</span> <span style="color: #98BC37;">""</span>
+<span style="color: #0AAEB3;">headers</span> <span style="color: #EF2F27;">=</span> {
+    <span style="color: #918175; font-style: italic;"># "cookie": "django_language=en-us",</span>
+    <span style="color: #918175; font-style: italic;"># "Host": "www.designsafe-ci.org",</span>
+    <span style="color: #98BC37;">"User-Agent"</span>: <span style="color: #98BC37;">"Mozilla/5.0 (X11; Linux x86_64; rv:108.0) Gecko/20100101 Firefox/108.0"</span>,
+    <span style="color: #98BC37;">"Accept"</span>: <span style="color: #98BC37;">"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"</span>,
+    <span style="color: #98BC37;">"Accept-Language"</span>: <span style="color: #98BC37;">"en-US,en;q=0.5"</span>,
+    <span style="color: #98BC37;">"Accept-Encoding"</span>: <span style="color: #98BC37;">"gzip, deflate, br"</span>,
+    <span style="color: #98BC37;">"DNT"</span>: <span style="color: #98BC37;">"1"</span>,
+    <span style="color: #98BC37;">"Connection"</span>: <span style="color: #98BC37;">"keep-alive"</span>,
+    <span style="color: #98BC37;">"Upgrade-Insecure-Requests"</span>: <span style="color: #98BC37;">"1"</span>,
+    <span style="color: #98BC37;">"Sec-Fetch-Dest"</span>: <span style="color: #98BC37;">"document"</span>,
+    <span style="color: #98BC37;">"Sec-Fetch-Mode"</span>: <span style="color: #98BC37;">"navigate"</span>,
+    <span style="color: #98BC37;">"Sec-Fetch-Site"</span>: <span style="color: #98BC37;">"none"</span>,
+    <span style="color: #98BC37;">"Sec-Fetch-User"</span>: <span style="color: #98BC37;">"?1"</span>,
+    <span style="color: #98BC37;">"TE"</span>: <span style="color: #98BC37;">"trailers"</span>
+}
+
+<span style="color: #0AAEB3;">response</span> <span style="color: #EF2F27;">=</span> requests.<span style="color: #918175; font-style: italic;">request</span>(<span style="color: #98BC37;">"GET"</span>, url, <span style="color: #FBB829;">data</span><span style="color: #EF2F27;">=</span>payload, <span style="color: #FBB829;">headers</span><span style="color: #EF2F27;">=</span>headers, <span style="color: #FBB829;">params</span><span style="color: #EF2F27;">=</span>querystring)
+
+<span style="color: #918175; font-style: italic;">pprint</span>(response.<span style="color: #918175; font-style: italic;">json</span>())
+</pre>
+</div>
+
+<pre class="example" id="orge762687">
+{'listing': [{'created': '2023-01-09T21:13:07.982682',
+              'pi': 'Zhang, Wenyang',
+              'project': {'value': {'keywords': 'Physics-based ground motion '
+                                                'simulation, loss and '
+                                                'resilience assessments, '
+                                                'regional analysis, Hercules, '
+                                                'SimCenter R2D',
+                                    'pi': 'wz_tacc',
+                                    'projectType': 'simulation',
+                                    'title': 'Regional-scale physics-based '
+                                             'ground motion simulation for '
+                                             'Istanbul, Turkey'}},
+              'projectId': 'PRJ-3712'},
+             {'created': '2023-01-09T18:06:55.086860',
+              'pi': 'Akin, Idil Deniz',
+              'project': {'value': {'keywords': 'suction, water content, '
+                                                'post-wildfire',
+                                    'pi': 'idil',
+                                    'projectType': 'field_recon',
+                                    'title': '2019 Williams Flats Wildfire '
+                                             'Slope Stability'}},
+              'projectId': 'PRJ-3685'},
+             {'created': '2023-01-09T01:52:04.001722',
+              'pi': 'Matta, Fabio',
+              'project': {'value': {'keywords': 'Compressive strength, earth '
+                                                'masonry, isotropy, '
+                                                'homogeneity, statistical '
+                                                'analysis',
+                                    'pi': 'fmatta',
+                                    'projectType': 'experimental',
+                                    'title': 'Physico-Mechanical '
+                                             'Characterization of Homogeneity '
+                                             'and Isotropy of Prototype Earth '
+                                             'Block Material'}},
+              'projectId': 'PRJ-2809'}]}
+</pre>
+</div>
+</div>
+
+
+<div id="outline-container-orgc3d4da4" class="outline-3">
+<h3 id="orgc3d4da4"><span class="section-number-3">5.2.</span> Get files for a project</h3>
+<div class="outline-text-3" id="text-5-2">
+<p>
+For a given <kbd>projectId</kbd>, we need to get all the result files. The information for projects can be fetched from <kbd>https://designsafe-ci.org/api/projects/publication/{projectId}</kbd>. For example,
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python"><span style="color: #0AAEB3;">projectId</span> <span style="color: #EF2F27;">=</span> <span style="color: #98BC37;">"PRJ-3484"</span>
+<span style="color: #0AAEB3;">url</span> <span style="color: #EF2F27;">=</span> <span style="color: #98BC37;">f"https://designsafe-ci.org/api/projects/publication/</span><span style="color: #EF2F27;">{</span><span style="color: #FCE8C3; background-color: #1C1B19;">projectId</span><span style="color: #EF2F27;">}</span><span style="color: #98BC37;">"</span>
+
+<span style="color: #0AAEB3;">payload</span> <span style="color: #EF2F27;">=</span> <span style="color: #98BC37;">""</span>
+<span style="color: #0AAEB3;">headers</span> <span style="color: #EF2F27;">=</span> {<span style="color: #98BC37;">"cookie"</span>: <span style="color: #98BC37;">"django_language=en-us"</span>}
+
+<span style="color: #0AAEB3;">response</span> <span style="color: #EF2F27;">=</span> requests.<span style="color: #918175; font-style: italic;">request</span>(<span style="color: #98BC37;">"GET"</span>, url, <span style="color: #FBB829;">data</span><span style="color: #EF2F27;">=</span>payload, <span style="color: #FBB829;">headers</span><span style="color: #EF2F27;">=</span>headers)
+<span style="color: #0AAEB3;">response_json</span> <span style="color: #EF2F27;">=</span> response.<span style="color: #918175; font-style: italic;">json</span>()
+</pre>
+</div>
+
+<ul class="org-ul">
+<li>The response is a humongous \sym 1300 lines json object which contains basically all the information about the project that is present on the website. The fields of major importance right now would be <code>["eventsList"]</code>. This corresponds to the different experiment setups.</li>
+<li>For every element in <code>"eventsList"</code>, <code>"fileObjs"</code> is the list of files for that experiment, <code>["value"]["title"]</code> is the title string of the experiment.</li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python"><span style="color: #0AAEB3;">files_info</span> <span style="color: #EF2F27;">=</span> <span style="color: #2C78BF; font-style: italic;">dict</span>()
+<span style="color: #EF2F27;">for</span> <span style="color: #0AAEB3;">i</span>, <span style="color: #0AAEB3;">event</span> <span style="color: #EF2F27;">in</span> <span style="color: #2C78BF; font-style: italic;">enumerate</span>(response_json[<span style="color: #98BC37;">"eventsList"</span>]):
+    files_info[<span style="color: #0AAEB3;">i</span>] <span style="color: #EF2F27;">=</span> {
+        <span style="color: #98BC37;">"title"</span>: event[<span style="color: #98BC37;">"value"</span>][<span style="color: #98BC37;">"title"</span>],
+        <span style="color: #98BC37;">"files"</span>: event[<span style="color: #98BC37;">"fileObjs"</span>]
+        }
+<span style="color: #918175; font-style: italic;">pprint</span>(files_info[<span style="color: #FF5C8F;">0</span>])
+</pre>
+</div>
+
+<pre class="example" id="org557c1bb">
+{'files': [{'name': 'eo_0_601_sigv_100_CSR_0_150_Tau_40_.csv',
+            'path': '/eo_0_601_sigv_100_CSR_0_150_Tau_40_.csv',
+            'system': 'project-3122606422211489300-242ac118-0001-012',
+            'type': 'file'},
+           {'name': 'eo_0_601_sigv_100_CSR_0_200_Tau_40_.csv',
+            'path': '/eo_0_601_sigv_100_CSR_0_200_Tau_40_.csv',
+            'system': 'project-3122606422211489300-242ac118-0001-012',
+            'type': 'file'},
+           {'name': 'eo_0_601_sigv_100_CSR_0_250_Tau_40_.csv',
+            'path': '/eo_0_601_sigv_100_CSR_0_250_Tau_40_.csv',
+            'system': 'project-3122606422211489300-242ac118-0001-012',
+            'type': 'file'},
+           {'name': 'eo_0_601_sigv_100_CSR_0_300_Tau_40_.csv',
+            'path': '/eo_0_601_sigv_100_CSR_0_300_Tau_40_.csv',
+            'system': 'project-3122606422211489300-242ac118-0001-012',
+            'type': 'file'}],
+ 'title': 'CDSS tests with Sig_v = 100 kPa, Dr = 67%, Alpha = 0.4'}
+</pre>
+
+<p>
+Now, to download any of those file, I can either create a request manually or use <code>tapis cli</code> to download it.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">tapis files download agave://designsafe.storage.published/PRJ-3484/eo_0_631_sigv_40_CSR_0_190_Tau_0_.csv
+</pre>
+</div>
+
+<p>
+<code>tapis cli</code> doesn&rsquo;t seem to allow specifying an output directory to save the file to, which is definitely not great as I&rsquo;ll have to either move them myself or change directory every time before saving the file. On the other hand, it has some support for multi-threaded downloads. Need more investigation on this.
+</p>
+
+<p>
+On the other hand, <code>tapis cli</code> uses <code>agavepy</code> to download the files. So, for now, I could potentially use that directly to download these files.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python"><span style="color: #EF2F27;">from</span> agavepy <span style="color: #EF2F27;">import</span> <span style="color: #68A8E4;">Agave</span>
+<span style="color: #0AAEB3;">ag</span> <span style="color: #EF2F27;">=</span> <span style="color: #68A8E4;">Agave</span>.<span style="color: #918175; font-style: italic;">restore</span>()
+</pre>
+</div>
+</div>
 </div>
 </div>
 </div>

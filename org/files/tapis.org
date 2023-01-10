@@ -377,17 +377,10 @@ t = Tapis(base_url="https://designsafe.tapis.io",
           username=os.getenv("TACC_USERNAME"),
           password=os.getenv("TACC_PASSWORD"))
 t.get_tokens()
-t.access_token
+# t.access_token
   #+end_src
 
   #+RESULTS:
-  : 
-  : access_token: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9....
-  : claims: {'jti': '5b01dd64-5e10-46f5-949a-b7129c5b2f51', 'iss': 'https://designsafe.tapis.io/v3/tokens', 'sub': 'chahak@designsafe', 'tapis/tenant_id': 'designsafe', 'tapis/token_type': 'access', 'tapis/delegation': False, 'tapis/delegation_sub': None, 'tapis/username': 'chahak', 'tapis/account_type': 'user', 'exp': 1673104999, 'tapis/client_id': None, 'tapis/grant_type': 'password'}
-  : expires_at: 2023-01-07 15:23:19+00:00
-  : expires_in: <function Tapis.add_claims_to_token.<locals>._expires_in at 0x7f1906abb790>
-  : jti: 5b01dd64-5e10-46f5-949a-b7129c5b2f51
-  : original_ttl: 14400
 
   Using the ~systemId~ as =designsafe.storage.default=, fetch files.
   #+begin_src jupyter-python
@@ -400,7 +393,7 @@ t.files.listFiles(systemId="designsafe.storage.default", path="chahak")
   #+begin_example
   ---------------------------------------------------------------------------
   NotFoundError                             Traceback (most recent call last)
-  Cell In[23], line 1
+  Cell In[6], line 1
   ----> 1 t.files.listFiles(systemId="designsafe.storage.default", path="chahak")
 
   File ~/.local/share/virtualenvs/tuitus-75BIUZJs/lib/python3.9/site-packages/tapipy/tapis.py:1191, in Operation.__call__(self, **kwargs)
@@ -413,3 +406,153 @@ t.files.listFiles(systemId="designsafe.storage.default", path="chahak")
   NotFoundError: message: SYSAPI_NOT_FOUND Record not found. jwtTenant: admin jwtUser: files OboTenant: designsafe OboUser: chahak System: designsafe.storage.default
   #+end_example
   :END:
+
+  Seems like tapipy is using v3 apis which doesn't seem to have any systems that it retrieves via ~getSystems()~ on =designsafe=. Not sure if I can work with this right now.
+* Get model configurations for experiments
++ I'm trying to find a way to get information about the model configurations and experiment setup on this page. I found using inspect element that there is an API call to https://www.designsafe-ci.org/api/projects/publication/PRJ-3484/ and that has a field for =modelConfigs= that has experiments but it has =associationIds= which are UUIDs if I'm not wrong, and the above API is the only way I could find to resolve UUIDs but it doesn't seem to be working.
++ According to Dr. Krishna, UUID lookup is not available in designsafe yet so letting this be for now.
+* Use ~requests~ module to retrieve files for projects
++ Even without model configs for experiments, next thing to do is to get all the files for all the projects.
+** Get a list of projects
+Using the ~requests~ module, we can create a request to =https://designsafe-ci.org/api/publications/listing= to get a list of the projects.
+
+#+begin_src jupyter-python
+from pprint import pprint
+import requests
+
+url = "https://designsafe-ci.org/api/publications/listing"
+
+querystring = {"limit":"3"}
+
+payload = ""
+headers = {
+    # "cookie": "django_language=en-us",
+    # "Host": "www.designsafe-ci.org",
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:108.0) Gecko/20100101 Firefox/108.0",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.5",
+    "Accept-Encoding": "gzip, deflate, br",
+    "DNT": "1",
+    "Connection": "keep-alive",
+    "Upgrade-Insecure-Requests": "1",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+    "Sec-Fetch-User": "?1",
+    "TE": "trailers"
+}
+
+response = requests.request("GET", url, data=payload, headers=headers, params=querystring)
+
+pprint(response.json())
+#+end_src
+
+#+RESULTS:
+#+begin_example
+{'listing': [{'created': '2023-01-09T21:13:07.982682',
+              'pi': 'Zhang, Wenyang',
+              'project': {'value': {'keywords': 'Physics-based ground motion '
+                                                'simulation, loss and '
+                                                'resilience assessments, '
+                                                'regional analysis, Hercules, '
+                                                'SimCenter R2D',
+                                    'pi': 'wz_tacc',
+                                    'projectType': 'simulation',
+                                    'title': 'Regional-scale physics-based '
+                                             'ground motion simulation for '
+                                             'Istanbul, Turkey'}},
+              'projectId': 'PRJ-3712'},
+             {'created': '2023-01-09T18:06:55.086860',
+              'pi': 'Akin, Idil Deniz',
+              'project': {'value': {'keywords': 'suction, water content, '
+                                                'post-wildfire',
+                                    'pi': 'idil',
+                                    'projectType': 'field_recon',
+                                    'title': '2019 Williams Flats Wildfire '
+                                             'Slope Stability'}},
+              'projectId': 'PRJ-3685'},
+             {'created': '2023-01-09T01:52:04.001722',
+              'pi': 'Matta, Fabio',
+              'project': {'value': {'keywords': 'Compressive strength, earth '
+                                                'masonry, isotropy, '
+                                                'homogeneity, statistical '
+                                                'analysis',
+                                    'pi': 'fmatta',
+                                    'projectType': 'experimental',
+                                    'title': 'Physico-Mechanical '
+                                             'Characterization of Homogeneity '
+                                             'and Isotropy of Prototype Earth '
+                                             'Block Material'}},
+              'projectId': 'PRJ-2809'}]}
+#+end_example
+
+
+** Get files for a project
+
+For a given =projectId=, we need to get all the result files. The information for projects can be fetched from =https://designsafe-ci.org/api/projects/publication/{projectId}=. For example,
+
+#+begin_src jupyter-python
+projectId = "PRJ-3484"
+url = f"https://designsafe-ci.org/api/projects/publication/{projectId}"
+
+payload = ""
+headers = {"cookie": "django_language=en-us"}
+
+response = requests.request("GET", url, data=payload, headers=headers)
+response_json = response.json()
+#+end_src
+
+#+RESULTS:
+
++ The response is a humongous \sym 1300 lines json object which contains basically all the information about the project that is present on the website. The fields of major importance right now would be ~["eventsList"]~. This corresponds to the different experiment setups.
++ For every element in ~"eventsList"~, ~"fileObjs"~ is the list of files for that experiment, ~["value"]["title"]~ is the title string of the experiment.
+
+#+begin_src jupyter-python
+files_info = dict()
+for i, event in enumerate(response_json["eventsList"]):
+    files_info[i] = {
+        "title": event["value"]["title"],
+        "files": event["fileObjs"]
+        }
+pprint(files_info[0])
+#+end_src
+
+#+RESULTS:
+#+begin_example
+{'files': [{'name': 'eo_0_601_sigv_100_CSR_0_150_Tau_40_.csv',
+            'path': '/eo_0_601_sigv_100_CSR_0_150_Tau_40_.csv',
+            'system': 'project-3122606422211489300-242ac118-0001-012',
+            'type': 'file'},
+           {'name': 'eo_0_601_sigv_100_CSR_0_200_Tau_40_.csv',
+            'path': '/eo_0_601_sigv_100_CSR_0_200_Tau_40_.csv',
+            'system': 'project-3122606422211489300-242ac118-0001-012',
+            'type': 'file'},
+           {'name': 'eo_0_601_sigv_100_CSR_0_250_Tau_40_.csv',
+            'path': '/eo_0_601_sigv_100_CSR_0_250_Tau_40_.csv',
+            'system': 'project-3122606422211489300-242ac118-0001-012',
+            'type': 'file'},
+           {'name': 'eo_0_601_sigv_100_CSR_0_300_Tau_40_.csv',
+            'path': '/eo_0_601_sigv_100_CSR_0_300_Tau_40_.csv',
+            'system': 'project-3122606422211489300-242ac118-0001-012',
+            'type': 'file'}],
+ 'title': 'CDSS tests with Sig_v = 100 kPa, Dr = 67%, Alpha = 0.4'}
+#+end_example
+
+Now, to download any of those file, I can either create a request manually or use ~tapis cli~ to download it.
+
+#+begin_src bash
+tapis files download agave://designsafe.storage.published/PRJ-3484/eo_0_631_sigv_40_CSR_0_190_Tau_0_.csv
+#+end_src
+
+#+RESULTS:
+
+~tapis cli~ doesn't seem to allow specifying an output directory to save the file to, which is definitely not great as I'll have to either move them myself or change directory every time before saving the file. On the other hand, it has some support for multi-threaded downloads. Need more investigation on this.
+
+On the other hand, ~tapis cli~ uses ~agavepy~ to download the files. So, for now, I could potentially use that directly to download these files.
+
+#+begin_src jupyter-python
+from agavepy import Agave
+ag = Agave.restore()
+#+end_src
+
+#+RESULTS:
