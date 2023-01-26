@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2023-01-26 Thu 08:35 -->
+<!-- 2023-01-26 Thu 08:39 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Tapis</title>
@@ -32,7 +32,7 @@
 </head>
 <body>
 <div id="preamble" class="status">
-<div id="updated">Updated: 2023-01-26 Thu 08:30</div>
+<div id="updated">Updated: 2023-01-26 Thu 08:39</div>
 <nav>
 <a href="/tuitus/">Home</a>
 <a href="/tuitus/files/sitemap.html">Posts</a>
@@ -537,7 +537,7 @@ To register a pod, we use the <code>pods.create_pod()</code> method.
 </pre>
 </div>
 
-<pre class="example" id="org7fac0f8">
+<pre class="example" id="orge3eff6f">
 
   command: None
   creation_ts: 2023-01-06T15:34:20.551402
@@ -583,7 +583,7 @@ The details and status of this <kbd>REQUESTED</kbd> pod can be accessed using th
 </pre>
 </div>
 
-<pre class="example" id="org2a5b2b8">
+<pre class="example" id="org5119994">
 
 command: None
 creation_ts: 2023-01-06T15:34:20.551402
@@ -629,7 +629,7 @@ The logs can be retrieved using the <code>get_pod_logs()</code> method.
 </pre>
 </div>
 
-<pre class="example" id="org1f04642">
+<pre class="example" id="orgcefad65">
 
 logs: 2023-01-06 16:06:39.132+0000 INFO  Starting...
 2023-01-06 16:06:40.347+0000 INFO  This instance is ServerId{e6102ec8} (e6102ec8-c9a0-4650-b0df-b523b7475f5a)
@@ -656,7 +656,7 @@ List of all pods - <code>get_pods()</code>
 </pre>
 </div>
 
-<pre class="example" id="orgbd36107">
+<pre class="example" id="org42514b3">
 [
 command: None
 creation_ts: 2023-01-06T15:34:20.551402
@@ -786,7 +786,7 @@ Using the <code>systemId</code> as <kbd>designsafe.storage.default</kbd>, fetch 
 </pre>
 </div>
 
-<pre class="example" id="org89ceae3">
+<pre class="example" id="org9559c53">
   ---------------------------------------------------------------------------
   NotFoundError                             Traceback (most recent call last)
   Cell In[6], line 1
@@ -863,7 +863,7 @@ Using the <code>requests</code> module, we can create a request to <kbd>https://
 </pre>
 </div>
 
-<pre class="example" id="orgd944d18">
+<pre class="example" id="org421d624">
 {'listing': [{'created': '2023-01-09T21:13:07.982682',
               'pi': 'Zhang, Wenyang',
               'project': {'value': {'keywords': 'Physics-based ground motion '
@@ -939,7 +939,7 @@ For a given <kbd>projectId</kbd>, we need to get all the result files. The infor
 </pre>
 </div>
 
-<pre class="example" id="org30a45b0">
+<pre class="example" id="orgf69b717">
 {'files': [{'name': 'eo_0_601_sigv_100_CSR_0_150_Tau_40_.csv',
             'path': '/eo_0_601_sigv_100_CSR_0_150_Tau_40_.csv',
             'system': 'project-3122606422211489300-242ac118-0001-012',
@@ -1079,76 +1079,74 @@ This downloads the project files and stores the files in the following structure
 </pre>
 </div>
 
-<p>
+<pre class="example" id="orgb9ee30b">
 PRJ-3484
-├── CDSS tests with Sig<sub>v</sub> = 100 kPa, Dr = 66.7%, Alpha = 0
-│   ├── eo<sub>0</sub><sub>600</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>170</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>600</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>180</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>600</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>190</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>600</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>200</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>600</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>210</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>600</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>220</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-│   └── eo<sub>0</sub><sub>600</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>250</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-├── CDSS tests with Sig<sub>v</sub> = 100 kPa, Dr = 67%, Alpha = 0.3
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>150</sub><sub>Tau</sub><sub>30</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>200</sub><sub>Tau</sub><sub>30</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>250</sub><sub>Tau</sub><sub>30</sub><sub>.csv</sub>
-│   └── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>300</sub><sub>Tau</sub><sub>30</sub><sub>.csv</sub>
-├── CDSS tests with Sig<sub>v</sub> = 100 kPa, Dr = 67%, Alpha = 0.4
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>150</sub><sub>Tau</sub><sub>40</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>200</sub><sub>Tau</sub><sub>40</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>250</sub><sub>Tau</sub><sub>40</sub><sub>.csv</sub>
-│   └── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>300</sub><sub>Tau</sub><sub>40</sub><sub>.csv</sub>
-├── CDSS tests with Sig<sub>v</sub> = 40 kPa, Dr = 55.2%, Alpha = 0
-│   ├── eo<sub>0</sub><sub>631</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>100</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>631</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>120</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>631</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>140</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>631</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>150</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>631</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>170</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>631</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>180</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-│   └── eo<sub>0</sub><sub>631</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>190</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-├── CDSS tests with Sig<sub>v</sub> = 40 kPa, Dr = 66.2%, Alpha = 0
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>150</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>170</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>190</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>200</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>210</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>220</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-│   └── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>250</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-├── CDSS tests with Sig<sub>v</sub> = 40 kPa, Dr = 66.4%, Alpha = 0.25
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>200</sub><sub>Tau</sub><sub>10</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>220</sub><sub>Tau</sub><sub>10</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>230</sub><sub>Tau</sub><sub>10</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>240</sub><sub>Tau</sub><sub>10</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>250</sub><sub>Tau</sub><sub>10</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>270</sub><sub>Tau</sub><sub>10</sub><sub>.csv</sub>
-│   └── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>300</sub><sub>Tau</sub><sub>10</sub><sub>.csv</sub>
-├── CDSS tests with Sig<sub>v</sub> = 40 kPa, Dr = 66.4%, Alpha = 0.375
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>220</sub><sub>Tau</sub><sub>15</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>230</sub><sub>Tau</sub><sub>15</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>250</sub><sub>Tau</sub><sub>15</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>270</sub><sub>Tau</sub><sub>15</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>300</sub><sub>Tau</sub><sub>15</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>320</sub><sub>Tau</sub><sub>15</sub><sub>.csv</sub>
-│   └── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>350</sub><sub>Tau</sub><sub>15</sub><sub>.csv</sub>
-├── CDSS tests with Sig<sub>v</sub> = 40 kPa, Dr = 71.2%, Alpha = 0
-│   ├── eo<sub>0</sub><sub>588</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>150</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>588</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>170</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-│   ├── eo<sub>0</sub><sub>588</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>200</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-│   └── eo<sub>0</sub><sub>588</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>230</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-└── CDSS tests with Sig<sub>v</sub> = 40 kPa, Dr = 75.5%, Alpha = 0
-    ├── eo<sub>0</sub><sub>576</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>160</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-    ├── eo<sub>0</sub><sub>576</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>170</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-    ├── eo<sub>0</sub><sub>576</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>190</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-    ├── eo<sub>0</sub><sub>576</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>210</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-    ├── eo<sub>0</sub><sub>576</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>240</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-    ├── eo<sub>0</sub><sub>576</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>250</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-    └── eo<sub>0</sub><sub>576</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>300</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
-</p>
+├── CDSS tests with Sig_v = 100 kPa, Dr = 66.7%, Alpha = 0
+│   ├── eo_0_600_sigv_100_CSR_0_170_Tau_0_.csv
+│   ├── eo_0_600_sigv_100_CSR_0_180_Tau_0_.csv
+│   ├── eo_0_600_sigv_100_CSR_0_190_Tau_0_.csv
+│   ├── eo_0_600_sigv_100_CSR_0_200_Tau_0_.csv
+│   ├── eo_0_600_sigv_100_CSR_0_210_Tau_0_.csv
+│   ├── eo_0_600_sigv_100_CSR_0_220_Tau_0_.csv
+│   └── eo_0_600_sigv_100_CSR_0_250_Tau_0_.csv
+├── CDSS tests with Sig_v = 100 kPa, Dr = 67%, Alpha = 0.3
+│   ├── eo_0_601_sigv_100_CSR_0_150_Tau_30_.csv
+│   ├── eo_0_601_sigv_100_CSR_0_200_Tau_30_.csv
+│   ├── eo_0_601_sigv_100_CSR_0_250_Tau_30_.csv
+│   └── eo_0_601_sigv_100_CSR_0_300_Tau_30_.csv
+├── CDSS tests with Sig_v = 100 kPa, Dr = 67%, Alpha = 0.4
+│   ├── eo_0_601_sigv_100_CSR_0_150_Tau_40_.csv
+│   ├── eo_0_601_sigv_100_CSR_0_200_Tau_40_.csv
+│   ├── eo_0_601_sigv_100_CSR_0_250_Tau_40_.csv
+│   └── eo_0_601_sigv_100_CSR_0_300_Tau_40_.csv
+├── CDSS tests with Sig_v = 40 kPa, Dr = 55.2%, Alpha = 0
+│   ├── eo_0_631_sigv_40_CSR_0_100_Tau_0_.csv
+│   ├── eo_0_631_sigv_40_CSR_0_120_Tau_0_.csv
+│   ├── eo_0_631_sigv_40_CSR_0_140_Tau_0_.csv
+│   ├── eo_0_631_sigv_40_CSR_0_150_Tau_0_.csv
+│   ├── eo_0_631_sigv_40_CSR_0_170_Tau_0_.csv
+│   ├── eo_0_631_sigv_40_CSR_0_180_Tau_0_.csv
+│   └── eo_0_631_sigv_40_CSR_0_190_Tau_0_.csv
+├── CDSS tests with Sig_v = 40 kPa, Dr = 66.2%, Alpha = 0
+│   ├── eo_0_601_sigv_40_CSR_0_150_Tau_0_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_170_Tau_0_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_190_Tau_0_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_200_Tau_0_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_210_Tau_0_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_220_Tau_0_.csv
+│   └── eo_0_601_sigv_40_CSR_0_250_Tau_0_.csv
+├── CDSS tests with Sig_v = 40 kPa, Dr = 66.4%, Alpha = 0.25
+│   ├── eo_0_601_sigv_40_CSR_0_200_Tau_10_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_220_Tau_10_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_230_Tau_10_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_240_Tau_10_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_250_Tau_10_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_270_Tau_10_.csv
+│   └── eo_0_601_sigv_40_CSR_0_300_Tau_10_.csv
+├── CDSS tests with Sig_v = 40 kPa, Dr = 66.4%, Alpha = 0.375
+│   ├── eo_0_601_sigv_40_CSR_0_220_Tau_15_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_230_Tau_15_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_250_Tau_15_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_270_Tau_15_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_300_Tau_15_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_320_Tau_15_.csv
+│   └── eo_0_601_sigv_40_CSR_0_350_Tau_15_.csv
+├── CDSS tests with Sig_v = 40 kPa, Dr = 71.2%, Alpha = 0
+│   ├── eo_0_588_sigv_40_CSR_0_150_Tau_0_.csv
+│   ├── eo_0_588_sigv_40_CSR_0_170_Tau_0_.csv
+│   ├── eo_0_588_sigv_40_CSR_0_200_Tau_0_.csv
+│   └── eo_0_588_sigv_40_CSR_0_230_Tau_0_.csv
+└── CDSS tests with Sig_v = 40 kPa, Dr = 75.5%, Alpha = 0
+    ├── eo_0_576_sigv_40_CSR_0_160_Tau_0_.csv
+    ├── eo_0_576_sigv_40_CSR_0_170_Tau_0_.csv
+    ├── eo_0_576_sigv_40_CSR_0_190_Tau_0_.csv
+    ├── eo_0_576_sigv_40_CSR_0_210_Tau_0_.csv
+    ├── eo_0_576_sigv_40_CSR_0_240_Tau_0_.csv
+    ├── eo_0_576_sigv_40_CSR_0_250_Tau_0_.csv
+    └── eo_0_576_sigv_40_CSR_0_300_Tau_0_.csv
 
-<p>
 10 directories, 54 files
-</p>
+</pre>
 </div>
 </div>
 </div>

@@ -640,6 +640,7 @@ tree PRJ-3484
 #+end_src
 
 #+RESULTS:
+#+begin_example
 PRJ-3484
 ├── CDSS tests with Sig_v = 100 kPa, Dr = 66.7%, Alpha = 0
 │   ├── eo_0_600_sigv_100_CSR_0_170_Tau_0_.csv
@@ -706,3 +707,4 @@ PRJ-3484
     └── eo_0_576_sigv_40_CSR_0_300_Tau_0_.csv
 
 10 directories, 54 files
+#+end_example
