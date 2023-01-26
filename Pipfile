@@ -8,6 +8,7 @@ tapis-cli = "*"
 tapipy = "*"
 jupyter = "*"
 requests = "*"
+tqdm = "*"
 
 [dev-packages]
 

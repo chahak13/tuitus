@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2023-01-10 Tue 18:35 -->
+<!-- 2023-01-26 Thu 08:35 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Tapis</title>
@@ -32,7 +32,7 @@
 </head>
 <body>
 <div id="preamble" class="status">
-<div id="updated">Updated: 2023-01-10 Tue 18:35</div>
+<div id="updated">Updated: 2023-01-26 Thu 08:30</div>
 <nav>
 <a href="/tuitus/">Home</a>
 <a href="/tuitus/files/sitemap.html">Posts</a>
@@ -53,6 +53,7 @@
 <ul>
 <li><a href="#orgd9ebc63">5.1. Get a list of projects</a></li>
 <li><a href="#orgc3d4da4">5.2. Get files for a project</a></li>
+<li><a href="#org385c9df">5.3. Download entire project info together</a></li>
 </ul>
 </li>
 </ul>
@@ -536,7 +537,7 @@ To register a pod, we use the <code>pods.create_pod()</code> method.
 </pre>
 </div>
 
-<pre class="example" id="org557c1bb">
+<pre class="example" id="org7fac0f8">
 
   command: None
   creation_ts: 2023-01-06T15:34:20.551402
@@ -582,7 +583,7 @@ The details and status of this <kbd>REQUESTED</kbd> pod can be accessed using th
 </pre>
 </div>
 
-<pre class="example" id="org9eb83eb">
+<pre class="example" id="org2a5b2b8">
 
 command: None
 creation_ts: 2023-01-06T15:34:20.551402
@@ -628,7 +629,7 @@ The logs can be retrieved using the <code>get_pod_logs()</code> method.
 </pre>
 </div>
 
-<pre class="example" id="org52a2e6b">
+<pre class="example" id="org1f04642">
 
 logs: 2023-01-06 16:06:39.132+0000 INFO  Starting...
 2023-01-06 16:06:40.347+0000 INFO  This instance is ServerId{e6102ec8} (e6102ec8-c9a0-4650-b0df-b523b7475f5a)
@@ -655,7 +656,7 @@ List of all pods - <code>get_pods()</code>
 </pre>
 </div>
 
-<pre class="example" id="org91f7b2d">
+<pre class="example" id="orgbd36107">
 [
 command: None
 creation_ts: 2023-01-06T15:34:20.551402
@@ -785,7 +786,7 @@ Using the <code>systemId</code> as <kbd>designsafe.storage.default</kbd>, fetch 
 </pre>
 </div>
 
-<pre class="example" id="org140f326">
+<pre class="example" id="org89ceae3">
   ---------------------------------------------------------------------------
   NotFoundError                             Traceback (most recent call last)
   Cell In[6], line 1
@@ -862,7 +863,7 @@ Using the <code>requests</code> module, we can create a request to <kbd>https://
 </pre>
 </div>
 
-<pre class="example" id="org1e3f17f">
+<pre class="example" id="orgd944d18">
 {'listing': [{'created': '2023-01-09T21:13:07.982682',
               'pi': 'Zhang, Wenyang',
               'project': {'value': {'keywords': 'Physics-based ground motion '
@@ -938,7 +939,7 @@ For a given <kbd>projectId</kbd>, we need to get all the result files. The infor
 </pre>
 </div>
 
-<pre class="example" id="org7fac0f8">
+<pre class="example" id="org30a45b0">
 {'files': [{'name': 'eo_0_601_sigv_100_CSR_0_150_Tau_40_.csv',
             'path': '/eo_0_601_sigv_100_CSR_0_150_Tau_40_.csv',
             'system': 'project-3122606422211489300-242ac118-0001-012',
@@ -1002,6 +1003,151 @@ True
 
 <p>
 This tests works. So, I can create a function to do this and create a folder structure with files based on the experiment titles.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org385c9df" class="outline-3">
+<h3 id="org385c9df"><span class="section-number-3">5.3.</span> Download entire project info together</h3>
+<div class="outline-text-3" id="text-5-3">
+<p>
+Now it is time to combine all of the above together to get all the files of a project in a single go.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python"><span style="color: #EF2F27;">import</span> os
+<span style="color: #EF2F27;">import</span> requests
+<span style="color: #EF2F27;">from</span> tqdm <span style="color: #EF2F27;">import</span> tqdm
+<span style="color: #EF2F27;">from</span> agavepy <span style="color: #EF2F27;">import</span> <span style="color: #68A8E4;">Agave</span>
+<span style="color: #0AAEB3;">ag</span> <span style="color: #EF2F27;">=</span> <span style="color: #68A8E4;">Agave</span>.<span style="color: #918175; font-style: italic;">restore</span>()
+
+
+<span style="color: #EF2F27;">def</span> <span style="color: #FBB829;">download_file</span>(<span style="color: #0AAEB3;">filepath</span>, <span style="color: #0AAEB3;">dirpath</span>):
+    <span style="color: #0AAEB3;">rsp</span> <span style="color: #EF2F27;">=</span> ag.<span style="color: #FF5C8F; font-style: italic;">files</span>.<span style="color: #918175; font-style: italic;">download</span>(<span style="color: #FBB829;">systemId</span><span style="color: #EF2F27;">=</span><span style="color: #98BC37;">"designsafe.storage.published"</span>,
+                            <span style="color: #FBB829;">filePath</span><span style="color: #EF2F27;">=</span>filepath)
+    <span style="color: #EF2F27;">if</span> <span style="color: #2C78BF; font-style: italic;">isinstance</span>(rsp, dict):
+        <span style="color: #EF2F27;">raise</span> <span style="color: #68A8E4; font-style: italic;">Error</span>(<span style="color: #98BC37;">f"Failed to download: </span><span style="color: #EF2F27;">{</span><span style="color: #FCE8C3; background-color: #1C1B19;">filepath</span><span style="color: #EF2F27;">}</span><span style="color: #98BC37;">"</span>)
+    <span style="color: #EF2F27;">if</span> <span style="color: #EF2F27;">not</span> os.<span style="color: #FF5C8F; font-style: italic;">path</span>.<span style="color: #918175; font-style: italic;">isdir</span>(dirpath):
+        os.<span style="color: #918175; font-style: italic;">makedirs</span>(dirpath)
+    <span style="color: #EF2F27;">with</span> <span style="color: #2C78BF; font-style: italic;">open</span>(os.<span style="color: #FF5C8F; font-style: italic;">path</span>.<span style="color: #918175; font-style: italic;">join</span>(dirpath, os.<span style="color: #FF5C8F; font-style: italic;">path</span>.<span style="color: #918175; font-style: italic;">basename</span>(filepath)), <span style="color: #98BC37;">"wb"</span>) <span style="color: #EF2F27;">as</span> f:
+        <span style="color: #EF2F27;">try</span>:
+            <span style="color: #EF2F27;">for</span> <span style="color: #0AAEB3;">block</span> <span style="color: #EF2F27;">in</span> rsp.<span style="color: #918175; font-style: italic;">iter_content</span>(<span style="color: #FF5C8F;">4096</span>):
+                <span style="color: #EF2F27;">if</span> <span style="color: #EF2F27;">not</span> block:
+                    <span style="color: #EF2F27;">break</span>
+                f.<span style="color: #918175; font-style: italic;">write</span>(block)
+        <span style="color: #EF2F27;">except</span> <span style="color: #68A8E4;">Exception</span> <span style="color: #EF2F27;">as</span> e:
+            <span style="color: #EF2F27;">raise</span> e
+    <span style="color: #EF2F27;">return</span> <span style="color: #2C78BF;">True</span>
+
+
+<span style="color: #EF2F27;">def</span> <span style="color: #FBB829;">download_project</span>(<span style="color: #0AAEB3;">projectId</span>):
+    <span style="color: #0AAEB3;">url</span> <span style="color: #EF2F27;">=</span> <span style="color: #98BC37;">f"https://designsafe-ci.org/api/projects/publication/</span><span style="color: #EF2F27;">{</span><span style="color: #FCE8C3; background-color: #1C1B19;">projectId</span><span style="color: #EF2F27;">}</span><span style="color: #98BC37;">"</span>
+
+    <span style="color: #0AAEB3;">payload</span> <span style="color: #EF2F27;">=</span> <span style="color: #98BC37;">""</span>
+    <span style="color: #0AAEB3;">headers</span> <span style="color: #EF2F27;">=</span> <span style="color: #98BC37;">""</span>
+
+    <span style="color: #0AAEB3;">response</span> <span style="color: #EF2F27;">=</span> requests.<span style="color: #918175; font-style: italic;">get</span>(url, <span style="color: #FBB829;">data</span><span style="color: #EF2F27;">=</span>payload, <span style="color: #FBB829;">headers</span><span style="color: #EF2F27;">=</span>headers)
+    <span style="color: #0AAEB3;">response_json</span> <span style="color: #EF2F27;">=</span> response.<span style="color: #918175; font-style: italic;">json</span>()
+
+    <span style="color: #0AAEB3;">files_info</span> <span style="color: #EF2F27;">=</span> <span style="color: #2C78BF; font-style: italic;">dict</span>()
+    <span style="color: #EF2F27;">for</span> <span style="color: #0AAEB3;">i</span>, <span style="color: #0AAEB3;">event</span> <span style="color: #EF2F27;">in</span> <span style="color: #2C78BF; font-style: italic;">enumerate</span>(response_json[<span style="color: #98BC37;">"eventsList"</span>]):
+        files_info[<span style="color: #0AAEB3;">i</span>] <span style="color: #EF2F27;">=</span> {
+            <span style="color: #98BC37;">"title"</span>: event[<span style="color: #98BC37;">"value"</span>][<span style="color: #98BC37;">"title"</span>],
+            <span style="color: #98BC37;">"files"</span>: event[<span style="color: #98BC37;">"fileObjs"</span>],
+        }
+
+    <span style="color: #EF2F27;">for</span> <span style="color: #0AAEB3;">event</span>, <span style="color: #0AAEB3;">data</span> <span style="color: #EF2F27;">in</span> <span style="color: #918175; font-style: italic;">tqdm</span>(files_info.<span style="color: #918175; font-style: italic;">items</span>()):
+        <span style="color: #0AAEB3;">dirpath</span> <span style="color: #EF2F27;">=</span> <span style="color: #98BC37;">f"</span><span style="color: #EF2F27;">{</span><span style="color: #FCE8C3; background-color: #1C1B19;">projectId</span><span style="color: #EF2F27;">}</span><span style="color: #98BC37;">/</span><span style="color: #EF2F27;">{</span><span style="color: #FCE8C3; background-color: #1C1B19;">data[</span><span style="color: #98BC37; background-color: #1C1B19;">'</span><span style="color: #FCE8C3; background-color: #1C1B19;">title</span><span style="color: #98BC37; background-color: #1C1B19;">'</span><span style="color: #FCE8C3; background-color: #1C1B19;">]</span><span style="color: #EF2F27;">}</span><span style="color: #98BC37;">"</span>
+        <span style="color: #EF2F27;">for</span> <span style="color: #0AAEB3;">file</span> <span style="color: #EF2F27;">in</span> <span style="color: #918175; font-style: italic;">tqdm</span>(data[<span style="color: #98BC37;">"files"</span>], <span style="color: #FBB829;">leave</span><span style="color: #EF2F27;">=</span><span style="color: #2C78BF;">False</span>):
+            <span style="color: #0AAEB3;">filepath</span> <span style="color: #EF2F27;">=</span> <span style="color: #98BC37;">f"</span><span style="color: #EF2F27;">{</span><span style="color: #FCE8C3; background-color: #1C1B19;">projectId</span><span style="color: #EF2F27;">}</span><span style="color: #98BC37;">/</span><span style="color: #EF2F27;">{</span><span style="color: #FCE8C3; background-color: #1C1B19;">file[</span><span style="color: #98BC37; background-color: #1C1B19;">'</span><span style="color: #FCE8C3; background-color: #1C1B19;">path</span><span style="color: #98BC37; background-color: #1C1B19;">'</span><span style="color: #FCE8C3; background-color: #1C1B19;">]</span><span style="color: #EF2F27;">}</span><span style="color: #98BC37;">"</span>
+            <span style="color: #918175; font-style: italic;">download_file</span>(filepath, dirpath)
+
+    <span style="color: #EF2F27;">return</span>
+
+
+<span style="color: #0AAEB3;">projectId</span> <span style="color: #EF2F27;">=</span> <span style="color: #98BC37;">"PRJ-3484"</span>
+<span style="color: #918175; font-style: italic;">download_project</span>(projectId)
+</pre>
+</div>
+
+<p>
+This downloads the project files and stores the files in the following structure.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">tree PRJ-3484
+</pre>
+</div>
+
+<p>
+PRJ-3484
+├── CDSS tests with Sig<sub>v</sub> = 100 kPa, Dr = 66.7%, Alpha = 0
+│   ├── eo<sub>0</sub><sub>600</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>170</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>600</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>180</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>600</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>190</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>600</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>200</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>600</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>210</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>600</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>220</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+│   └── eo<sub>0</sub><sub>600</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>250</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+├── CDSS tests with Sig<sub>v</sub> = 100 kPa, Dr = 67%, Alpha = 0.3
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>150</sub><sub>Tau</sub><sub>30</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>200</sub><sub>Tau</sub><sub>30</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>250</sub><sub>Tau</sub><sub>30</sub><sub>.csv</sub>
+│   └── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>300</sub><sub>Tau</sub><sub>30</sub><sub>.csv</sub>
+├── CDSS tests with Sig<sub>v</sub> = 100 kPa, Dr = 67%, Alpha = 0.4
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>150</sub><sub>Tau</sub><sub>40</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>200</sub><sub>Tau</sub><sub>40</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>250</sub><sub>Tau</sub><sub>40</sub><sub>.csv</sub>
+│   └── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>100</sub><sub>CSR</sub><sub>0</sub><sub>300</sub><sub>Tau</sub><sub>40</sub><sub>.csv</sub>
+├── CDSS tests with Sig<sub>v</sub> = 40 kPa, Dr = 55.2%, Alpha = 0
+│   ├── eo<sub>0</sub><sub>631</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>100</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>631</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>120</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>631</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>140</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>631</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>150</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>631</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>170</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>631</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>180</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+│   └── eo<sub>0</sub><sub>631</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>190</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+├── CDSS tests with Sig<sub>v</sub> = 40 kPa, Dr = 66.2%, Alpha = 0
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>150</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>170</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>190</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>200</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>210</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>220</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+│   └── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>250</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+├── CDSS tests with Sig<sub>v</sub> = 40 kPa, Dr = 66.4%, Alpha = 0.25
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>200</sub><sub>Tau</sub><sub>10</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>220</sub><sub>Tau</sub><sub>10</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>230</sub><sub>Tau</sub><sub>10</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>240</sub><sub>Tau</sub><sub>10</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>250</sub><sub>Tau</sub><sub>10</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>270</sub><sub>Tau</sub><sub>10</sub><sub>.csv</sub>
+│   └── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>300</sub><sub>Tau</sub><sub>10</sub><sub>.csv</sub>
+├── CDSS tests with Sig<sub>v</sub> = 40 kPa, Dr = 66.4%, Alpha = 0.375
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>220</sub><sub>Tau</sub><sub>15</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>230</sub><sub>Tau</sub><sub>15</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>250</sub><sub>Tau</sub><sub>15</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>270</sub><sub>Tau</sub><sub>15</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>300</sub><sub>Tau</sub><sub>15</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>320</sub><sub>Tau</sub><sub>15</sub><sub>.csv</sub>
+│   └── eo<sub>0</sub><sub>601</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>350</sub><sub>Tau</sub><sub>15</sub><sub>.csv</sub>
+├── CDSS tests with Sig<sub>v</sub> = 40 kPa, Dr = 71.2%, Alpha = 0
+│   ├── eo<sub>0</sub><sub>588</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>150</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>588</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>170</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+│   ├── eo<sub>0</sub><sub>588</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>200</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+│   └── eo<sub>0</sub><sub>588</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>230</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+└── CDSS tests with Sig<sub>v</sub> = 40 kPa, Dr = 75.5%, Alpha = 0
+    ├── eo<sub>0</sub><sub>576</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>160</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+    ├── eo<sub>0</sub><sub>576</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>170</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+    ├── eo<sub>0</sub><sub>576</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>190</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+    ├── eo<sub>0</sub><sub>576</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>210</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+    ├── eo<sub>0</sub><sub>576</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>240</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+    ├── eo<sub>0</sub><sub>576</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>250</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+    └── eo<sub>0</sub><sub>576</sub><sub>sigv</sub><sub>40</sub><sub>CSR</sub><sub>0</sub><sub>300</sub><sub>Tau</sub><sub>0</sub><sub>.csv</sub>
+</p>
+
+<p>
+10 directories, 54 files
 </p>
 </div>
 </div>

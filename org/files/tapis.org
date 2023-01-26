@@ -574,3 +574,135 @@ print(os.path.isfile('test.csv'))
 : True
 
 This tests works. So, I can create a function to do this and create a folder structure with files based on the experiment titles.
+
+** Download entire project info together
+Now it is time to combine all of the above together to get all the files of a project in a single go.
+
+#+begin_src jupyter-python
+import os
+import requests
+from tqdm import tqdm
+from agavepy import Agave
+ag = Agave.restore()
+
+
+def download_file(filepath, dirpath):
+    rsp = ag.files.download(systemId="designsafe.storage.published",
+                            filePath=filepath)
+    if isinstance(rsp, dict):
+        raise Error(f"Failed to download: {filepath}")
+    if not os.path.isdir(dirpath):
+        os.makedirs(dirpath)
+    with open(os.path.join(dirpath, os.path.basename(filepath)), "wb") as f:
+        try:
+            for block in rsp.iter_content(4096):
+                if not block:
+                    break
+                f.write(block)
+        except Exception as e:
+            raise e
+    return True
+
+
+def download_project(projectId):
+    url = f"https://designsafe-ci.org/api/projects/publication/{projectId}"
+
+    payload = ""
+    headers = ""
+
+    response = requests.get(url, data=payload, headers=headers)
+    response_json = response.json()
+
+    files_info = dict()
+    for i, event in enumerate(response_json["eventsList"]):
+        files_info[i] = {
+            "title": event["value"]["title"],
+            "files": event["fileObjs"],
+        }
+
+    for event, data in tqdm(files_info.items()):
+        dirpath = f"{projectId}/{data['title']}"
+        for file in tqdm(data["files"], leave=False):
+            filepath = f"{projectId}/{file['path']}"
+            download_file(filepath, dirpath)
+
+    return
+
+
+projectId = "PRJ-3484"
+download_project(projectId)
+#+end_src
+
+This downloads the project files and stores the files in the following structure.
+
+#+begin_src bash :results raw
+tree PRJ-3484
+#+end_src
+
+#+RESULTS:
+PRJ-3484
+├── CDSS tests with Sig_v = 100 kPa, Dr = 66.7%, Alpha = 0
+│   ├── eo_0_600_sigv_100_CSR_0_170_Tau_0_.csv
+│   ├── eo_0_600_sigv_100_CSR_0_180_Tau_0_.csv
+│   ├── eo_0_600_sigv_100_CSR_0_190_Tau_0_.csv
+│   ├── eo_0_600_sigv_100_CSR_0_200_Tau_0_.csv
+│   ├── eo_0_600_sigv_100_CSR_0_210_Tau_0_.csv
+│   ├── eo_0_600_sigv_100_CSR_0_220_Tau_0_.csv
+│   └── eo_0_600_sigv_100_CSR_0_250_Tau_0_.csv
+├── CDSS tests with Sig_v = 100 kPa, Dr = 67%, Alpha = 0.3
+│   ├── eo_0_601_sigv_100_CSR_0_150_Tau_30_.csv
+│   ├── eo_0_601_sigv_100_CSR_0_200_Tau_30_.csv
+│   ├── eo_0_601_sigv_100_CSR_0_250_Tau_30_.csv
+│   └── eo_0_601_sigv_100_CSR_0_300_Tau_30_.csv
+├── CDSS tests with Sig_v = 100 kPa, Dr = 67%, Alpha = 0.4
+│   ├── eo_0_601_sigv_100_CSR_0_150_Tau_40_.csv
+│   ├── eo_0_601_sigv_100_CSR_0_200_Tau_40_.csv
+│   ├── eo_0_601_sigv_100_CSR_0_250_Tau_40_.csv
+│   └── eo_0_601_sigv_100_CSR_0_300_Tau_40_.csv
+├── CDSS tests with Sig_v = 40 kPa, Dr = 55.2%, Alpha = 0
+│   ├── eo_0_631_sigv_40_CSR_0_100_Tau_0_.csv
+│   ├── eo_0_631_sigv_40_CSR_0_120_Tau_0_.csv
+│   ├── eo_0_631_sigv_40_CSR_0_140_Tau_0_.csv
+│   ├── eo_0_631_sigv_40_CSR_0_150_Tau_0_.csv
+│   ├── eo_0_631_sigv_40_CSR_0_170_Tau_0_.csv
+│   ├── eo_0_631_sigv_40_CSR_0_180_Tau_0_.csv
+│   └── eo_0_631_sigv_40_CSR_0_190_Tau_0_.csv
+├── CDSS tests with Sig_v = 40 kPa, Dr = 66.2%, Alpha = 0
+│   ├── eo_0_601_sigv_40_CSR_0_150_Tau_0_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_170_Tau_0_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_190_Tau_0_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_200_Tau_0_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_210_Tau_0_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_220_Tau_0_.csv
+│   └── eo_0_601_sigv_40_CSR_0_250_Tau_0_.csv
+├── CDSS tests with Sig_v = 40 kPa, Dr = 66.4%, Alpha = 0.25
+│   ├── eo_0_601_sigv_40_CSR_0_200_Tau_10_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_220_Tau_10_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_230_Tau_10_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_240_Tau_10_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_250_Tau_10_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_270_Tau_10_.csv
+│   └── eo_0_601_sigv_40_CSR_0_300_Tau_10_.csv
+├── CDSS tests with Sig_v = 40 kPa, Dr = 66.4%, Alpha = 0.375
+│   ├── eo_0_601_sigv_40_CSR_0_220_Tau_15_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_230_Tau_15_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_250_Tau_15_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_270_Tau_15_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_300_Tau_15_.csv
+│   ├── eo_0_601_sigv_40_CSR_0_320_Tau_15_.csv
+│   └── eo_0_601_sigv_40_CSR_0_350_Tau_15_.csv
+├── CDSS tests with Sig_v = 40 kPa, Dr = 71.2%, Alpha = 0
+│   ├── eo_0_588_sigv_40_CSR_0_150_Tau_0_.csv
+│   ├── eo_0_588_sigv_40_CSR_0_170_Tau_0_.csv
+│   ├── eo_0_588_sigv_40_CSR_0_200_Tau_0_.csv
+│   └── eo_0_588_sigv_40_CSR_0_230_Tau_0_.csv
+└── CDSS tests with Sig_v = 40 kPa, Dr = 75.5%, Alpha = 0
+    ├── eo_0_576_sigv_40_CSR_0_160_Tau_0_.csv
+    ├── eo_0_576_sigv_40_CSR_0_170_Tau_0_.csv
+    ├── eo_0_576_sigv_40_CSR_0_190_Tau_0_.csv
+    ├── eo_0_576_sigv_40_CSR_0_210_Tau_0_.csv
+    ├── eo_0_576_sigv_40_CSR_0_240_Tau_0_.csv
+    ├── eo_0_576_sigv_40_CSR_0_250_Tau_0_.csv
+    └── eo_0_576_sigv_40_CSR_0_300_Tau_0_.csv
+
+10 directories, 54 files
