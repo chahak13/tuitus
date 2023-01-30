@@ -1,7 +1,7 @@
 #+title: Tapis
 #+author: Chahak Mehta
 #+date: <2023-01-03 Tue>
-#+property: header-args :session tapis :eval no-export :exports both :async yes
+#+property: header-args :session tapis :eval no-export :exports both :async yes :tangle no
 
 * =tapis-cli=
 
@@ -578,7 +578,7 @@ This tests works. So, I can create a function to do this and create a folder str
 ** Download entire project info together
 Now it is time to combine all of the above together to get all the files of a project in a single go.
 
-#+begin_src jupyter-python
+#+begin_src jupyter-python :tangle ../../src/download_project.py
 import os
 import requests
 from tqdm import tqdm
@@ -708,3 +708,153 @@ PRJ-3484
 
 10 directories, 54 files
 #+end_example
+* COMMENT Generate summary and metadata info for the files
+Next step in building a semantic search engine would be to generate the metadata info/summary for the files inside any project. This can be done using the =pandas= library.
+
+#+begin_src jupyter-python
+import os
+import pandas as pd
+from pprint import pprint
+
+def summarize_csv(filepath):
+    """
+    Summarize a CSV
+
+    This function generates a dictionary that contains the summary
+    of the CSV. It also performs some preprocessing on the column
+    names by stripping off any whitespace before and after the column
+    name and converting the column name to a snake-case. Furthermore,
+    it also adds an "increment_<column_name>" key to the summary that
+    records the increments used in the first column of the CSV.
+    """
+    df = pd.read_csv(filepath)
+    df.columns = df.columns.str.strip().str.replace("\s+", " ", regex=True).str.lower().str.replace(" ", "_")
+    summary = df.describe().to_dict()
+    increment = df[df.columns[0]].iloc[2] - df[df.columns[0]].iloc[1]
+    summary[f"increment_{df.columns[0]}"] = increment
+    return df, summary
+
+
+df, summary = summarize_csv("PRJ-3484/CDSS tests with Sig_v = 100 kPa, Dr = 66.7%, Alpha = 0/eo_0_600_sigv_100_CSR_0_170_Tau_0_.csv")
+pprint(summary.keys())
+#+end_src
+
+#+RESULTS:
+: dict_keys(['cycle', 'shear_strain', 'shear_stress', 'normal_strain', 'normal_stress', 'pressure_ratio', 'increment_cycle'])
+* Store information in a neo4j database
+As starting step for creating the graph database, we'll create a structure that would enable the queries of the type
+
+#+begin_quote
+What projects record information regarding shear_strain?
+#+end_quote
+
+** Connecting to a Neo4j database
+I've created a neo4j project locally. I can now use =py2neo= to connect to this database.
+
+#+begin_src jupyter-python
+from py2neo import Graph
+
+tuitus_db = Graph("bolt://localhost:7687", user="neo4j", password="tuitusci")
+#+end_src
+
+#+RESULTS:
+** Adding nodes
+To add node for a project, say PRJ-3484, we use the =Graph.create= method with the =Node= class.
+
+#+begin_src jupyter-python
+from py2neo import Node, Relationship
+
+project_node = Node("Project", name="PRJ-3484")
+tuitus_db.create(project_node)
+#+end_src
+
+#+RESULTS:
+
+This project will be supervised by a PI, information for which can be found in the project JSON.
+
+#+begin_src jupyter-python
+pi_node = Node("Author", name="mmanzari")
+tuitus_db.create(pi_node)
+pi_rel = Relationship(pi_node, "SUPERVISES", project_node)
+tuitus_db.create(pi_rel)
+#+end_src
+
+#+RESULTS:
+
+A project can have multiple experiments, each of which can record different information.
+
+#+begin_src jupyter-python
+# len(tuitus_db.nodes.match("Project", name="PRJ-3484"))
+
+project_id = "PRJ-3484"
+for root, dirs, files in os.walk(project_id):
+    for f in files:
+        _, summary =
+ summarize_csv(os.path.join(root, f))
+        for key in summary.keys():
+            matching = tuitus_db.nodes.match("Data", name=key)
+            if len(matching) == 0:
+                column_node = Node("Data", name=key)
+                tuitus_db.create(column_node)
+            else:
+                column_node = list(matching)[0]
+            if len(tuitus_db.relationships.match(nodes=(project_node, column_node), r_type="RECORDS")) == 0:
+                col_rel = Relationship(project_node, "RECORDS", column_node)
+                tuitus_db.create(col_rel)
+
+
+#+end_src
+
+#+RESULTS:
+
+I can now combine all these steps into a single function that adds the nodes for a given project with files stored in a directory.
+
+#+begin_src jupyter-python
+def create_project_graph(project_id, project_path, pi, graph_db):
+    project_matching = graph_db.nodes.match("Project", name=project_id)
+    if len(project_matching) == 0:
+        project_node = Node("Project", name=project_id)
+        graph_db.create(project_node)
+    else:
+        project_node = list(project_matching)[0]
+    pi_matching = graph_db.nodes.match("Author", name=pi)
+    if len(pi_matching) == 0:
+        pi_node = Node("Author", name=pi)
+        graph_db.create(pi_node)
+    else:
+        pi_node = list(pi_matching)[0]
+    pi_rel = Relationship(pi_node, "SUPERVISES", project_node)
+    graph_db.create(pi_rel)
+
+    for root, dirs, files in os.walk(project_id):
+        for f in files:
+            _, summary = summarize_csv(os.path.join(root, f))
+            for key in summary.keys():
+                matching = graph_db.nodes.match("Data", name=key)
+                if len(matching) == 0:
+                    column_node = Node("Data", name=key)
+                    graph_db.create(column_node)
+                else:
+                    column_node = list(matching)[0]
+                if len(graph_db.relationships.match(nodes=(project_node, column_node), r_type="RECORDS")) == 0:
+                    col_rel = Relationship(project_node, "RECORDS", column_node)
+                    graph_db.create(col_rel)
+
+    return
+
+
+create_project_graph("PRJ-3484", "./", "mmanzari", tuitus_db)
+create_project_graph("PRJ-2137", "./", "mmanzari", tuitus_db)
+#+end_src
+
+#+RESULTS:
+
+This generates a graph db that can now answer the query mentioned above.
+
+#+begin_src jupyter-python
+tuitus_db.run("MATCH (p:PROJECT)-[:RECORDS]->(d:Data {name: 'cycle'}) RETURN p, d")
+#+end_src
+
+
+#+DOWNLOADED: screenshot @ 2023-01-30 16:18:10
+[[file:../assets/2023-01-30_16-18-10_screenshot.png]]

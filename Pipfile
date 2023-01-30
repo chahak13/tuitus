@@ -9,6 +9,9 @@ tapipy = "*"
 jupyter = "*"
 requests = "*"
 tqdm = "*"
+python-lsp-server = {extras = ["all"], version = "*"}
+pandas = "*"
+py2neo = "*"
 
 [dev-packages]
 

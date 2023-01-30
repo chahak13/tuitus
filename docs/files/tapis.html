@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2023-01-26 Thu 08:39 -->
+<!-- 2023-01-30 Mon 16:22 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Tapis</title>
@@ -32,7 +32,7 @@
 </head>
 <body>
 <div id="preamble" class="status">
-<div id="updated">Updated: 2023-01-26 Thu 08:39</div>
+<div id="updated">Updated: 2023-01-30 Mon 16:20</div>
 <nav>
 <a href="/tuitus/">Home</a>
 <a href="/tuitus/files/sitemap.html">Posts</a>
@@ -54,6 +54,12 @@
 <li><a href="#orgd9ebc63">5.1. Get a list of projects</a></li>
 <li><a href="#orgc3d4da4">5.2. Get files for a project</a></li>
 <li><a href="#org385c9df">5.3. Download entire project info together</a></li>
+</ul>
+</li>
+<li><a href="#org702b80e">6. Store information in a neo4j database</a>
+<ul>
+<li><a href="#orgb327795">6.1. Connecting to a Neo4j database</a></li>
+<li><a href="#org8fef419">6.2. Adding nodes</a></li>
 </ul>
 </li>
 </ul>
@@ -490,15 +496,15 @@ Install Tapis Python SDK
 Create Tapis Client Object
 </p>
 <div class="org-src-container">
-<pre class="src src-jupyter-python"><span style="color: #EF2F27;">import</span> os
-<span style="color: #EF2F27;">from</span> tapipy.tapis <span style="color: #EF2F27;">import</span> <span style="color: #68A8E4;">Tapis</span>
+<pre class="src src-jupyter-python"><span style="color: #b6a0ff;">import</span> os
+<span style="color: #b6a0ff;">from</span> tapipy.tapis <span style="color: #b6a0ff;">import</span> <span style="color: #6ae4b9;">Tapis</span>
 
-<span style="color: #0AAEB3;">t</span> <span style="color: #EF2F27;">=</span> <span style="color: #68A8E4; font-style: italic;">Tapis</span>(<span style="color: #FBB829;">base_url</span><span style="color: #EF2F27;">=</span><span style="color: #98BC37;">"https://icicle.tapis.io"</span>,
-          <span style="color: #FBB829;">username</span><span style="color: #EF2F27;">=</span>os.<span style="color: #918175; font-style: italic;">getenv</span>(<span style="color: #98BC37;">"TACC_USERNAME"</span>),
-          <span style="color: #FBB829;">password</span><span style="color: #EF2F27;">=</span>os.<span style="color: #918175; font-style: italic;">getenv</span>(<span style="color: #98BC37;">"TACC_PASSWORD"</span>))
+<span style="color: #00d3d0;">t</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Tapis</span>(<span style="color: #ff9077;">base_url</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"https://icicle.tapis.io"</span>,
+          <span style="color: #ff9077;">username</span><span style="color: #b6a0ff;">=</span>os.<span style="color: #00bcff; font-style: italic;">getenv</span>(<span style="color: #79a8ff;">"TACC_USERNAME"</span>),
+          <span style="color: #ff9077;">password</span><span style="color: #b6a0ff;">=</span>os.<span style="color: #00bcff; font-style: italic;">getenv</span>(<span style="color: #79a8ff;">"TACC_PASSWORD"</span>))
 
-t.<span style="color: #918175; font-style: italic;">get_tokens</span>()
-t.<span style="color: #FF5C8F; font-style: italic;">access_token</span>.<span style="color: #FF5C8F; font-style: italic;">access_token</span>
+t.<span style="color: #00bcff; font-style: italic;">get_tokens</span>()
+t.<span style="color: #00bcff; font-style: italic;">access_token</span>.<span style="color: #00bcff; font-style: italic;">access_token</span>
 </pre>
 </div>
 
@@ -510,7 +516,7 @@ eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...
 Check Access to the Tapis API
 </p>
 <div class="org-src-container">
-<pre class="src src-jupyter-python">t.<span style="color: #FF5C8F; font-style: italic;">authenticator</span>.<span style="color: #918175; font-style: italic;">get_profile</span>(<span style="color: #FBB829;">username</span><span style="color: #EF2F27;">=</span>os.<span style="color: #918175; font-style: italic;">getenv</span>(<span style="color: #98BC37;">"TACC_USERNAME"</span>))
+<pre class="src src-jupyter-python">t.<span style="color: #00bcff; font-style: italic;">authenticator</span>.<span style="color: #00bcff; font-style: italic;">get_profile</span>(<span style="color: #ff9077;">username</span><span style="color: #b6a0ff;">=</span>os.<span style="color: #00bcff; font-style: italic;">getenv</span>(<span style="color: #79a8ff;">"TACC_USERNAME"</span>))
 </pre>
 </div>
 
@@ -533,11 +539,11 @@ Registering a templated Pod
 To register a pod, we use the <code>pods.create_pod()</code> method.
 </p>
 <div class="org-src-container">
-<pre class="src src-jupyter-python">t.<span style="color: #FF5C8F; font-style: italic;">pods</span>.<span style="color: #918175; font-style: italic;">create_pod</span>(<span style="color: #FBB829;">pod_id</span><span style="color: #EF2F27;">=</span><span style="color: #98BC37;">"tuitustestpod"</span>, <span style="color: #FBB829;">pod_template</span><span style="color: #EF2F27;">=</span><span style="color: #98BC37;">"neo4j"</span>, <span style="color: #FBB829;">description</span><span style="color: #EF2F27;">=</span><span style="color: #98BC37;">"Creating test pod"</span>)
+<pre class="src src-jupyter-python">t.<span style="color: #00bcff; font-style: italic;">pods</span>.<span style="color: #00bcff; font-style: italic;">create_pod</span>(<span style="color: #ff9077;">pod_id</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"tuitustestpod"</span>, <span style="color: #ff9077;">pod_template</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"neo4j"</span>, <span style="color: #ff9077;">description</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"Creating test pod"</span>)
 </pre>
 </div>
 
-<pre class="example" id="orge3eff6f">
+<pre class="example" id="orgb9ee30b">
 
   command: None
   creation_ts: 2023-01-06T15:34:20.551402
@@ -579,11 +585,11 @@ To register a pod, we use the <code>pods.create_pod()</code> method.
 The details and status of this <kbd>REQUESTED</kbd> pod can be accessed using the <code>get_pod()</code> method.
 </p>
 <div class="org-src-container">
-<pre class="src src-jupyter-python">t.<span style="color: #FF5C8F; font-style: italic;">pods</span>.<span style="color: #918175; font-style: italic;">get_pod</span>(<span style="color: #FBB829;">pod_id</span><span style="color: #EF2F27;">=</span><span style="color: #98BC37;">"tuitustestpod"</span>)
+<pre class="src src-jupyter-python">t.<span style="color: #00bcff; font-style: italic;">pods</span>.<span style="color: #00bcff; font-style: italic;">get_pod</span>(<span style="color: #ff9077;">pod_id</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"tuitustestpod"</span>)
 </pre>
 </div>
 
-<pre class="example" id="org5119994">
+<pre class="example" id="org59201ae">
 
 command: None
 creation_ts: 2023-01-06T15:34:20.551402
@@ -625,11 +631,11 @@ update_ts: 2023-01-06T15:34:20.551422
 The logs can be retrieved using the <code>get_pod_logs()</code> method.
 </p>
 <div class="org-src-container">
-<pre class="src src-jupyter-python">t.<span style="color: #FF5C8F; font-style: italic;">pods</span>.<span style="color: #918175; font-style: italic;">get_pod_logs</span>(<span style="color: #FBB829;">pod_id</span><span style="color: #EF2F27;">=</span><span style="color: #98BC37;">"tuitustestpod"</span>)
+<pre class="src src-jupyter-python">t.<span style="color: #00bcff; font-style: italic;">pods</span>.<span style="color: #00bcff; font-style: italic;">get_pod_logs</span>(<span style="color: #ff9077;">pod_id</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"tuitustestpod"</span>)
 </pre>
 </div>
 
-<pre class="example" id="orgcefad65">
+<pre class="example" id="org47b8ca1">
 
 logs: 2023-01-06 16:06:39.132+0000 INFO  Starting...
 2023-01-06 16:06:40.347+0000 INFO  This instance is ServerId{e6102ec8} (e6102ec8-c9a0-4650-b0df-b523b7475f5a)
@@ -652,11 +658,11 @@ logs: 2023-01-06 16:06:39.132+0000 INFO  Starting...
 List of all pods - <code>get_pods()</code>
 </p>
 <div class="org-src-container">
-<pre class="src src-jupyter-python"><span style="color: #2C78BF; font-style: italic;">print</span>(t.<span style="color: #FF5C8F; font-style: italic;">pods</span>.<span style="color: #918175; font-style: italic;">get_pods</span>())
+<pre class="src src-jupyter-python"><span style="color: #f78fe7;">print</span>(t.<span style="color: #00bcff; font-style: italic;">pods</span>.<span style="color: #00bcff; font-style: italic;">get_pods</span>())
 </pre>
 </div>
 
-<pre class="example" id="org42514b3">
+<pre class="example" id="org39b5672">
 [
 command: None
 creation_ts: 2023-01-06T15:34:20.551402
@@ -699,7 +705,7 @@ update_ts: 2023-01-06T15:34:20.551422]
 Any pod can be deleted using the <code>delete_pod(pod_id)</code> method.
 </p>
 <div class="org-src-container">
-<pre class="src src-jupyter-python">t.<span style="color: #FF5C8F; font-style: italic;">pods</span>.<span style="color: #918175; font-style: italic;">delete_pod</span>(<span style="color: #FBB829;">pod_id</span><span style="color: #EF2F27;">=</span><span style="color: #98BC37;">"tuitustestpod"</span>)
+<pre class="src src-jupyter-python">t.<span style="color: #00bcff; font-style: italic;">pods</span>.<span style="color: #00bcff; font-style: italic;">delete_pod</span>(<span style="color: #ff9077;">pod_id</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"tuitustestpod"</span>)
 </pre>
 </div>
 
@@ -767,14 +773,14 @@ Any pod can be deleted using the <code>delete_pod(pod_id)</code> method.
 Create <code>Tapis</code> object and generate a token.
 </p>
 <div class="org-src-container">
-<pre class="src src-jupyter-python"><span style="color: #EF2F27;">import</span> os
-<span style="color: #EF2F27;">from</span> tapipy.tapis <span style="color: #EF2F27;">import</span> <span style="color: #68A8E4;">Tapis</span>
+<pre class="src src-jupyter-python"><span style="color: #b6a0ff;">import</span> os
+<span style="color: #b6a0ff;">from</span> tapipy.tapis <span style="color: #b6a0ff;">import</span> <span style="color: #6ae4b9;">Tapis</span>
 
-<span style="color: #0AAEB3;">t</span> <span style="color: #EF2F27;">=</span> <span style="color: #68A8E4; font-style: italic;">Tapis</span>(<span style="color: #FBB829;">base_url</span><span style="color: #EF2F27;">=</span><span style="color: #98BC37;">"https://designsafe.tapis.io"</span>,
-          <span style="color: #FBB829;">username</span><span style="color: #EF2F27;">=</span>os.<span style="color: #918175; font-style: italic;">getenv</span>(<span style="color: #98BC37;">"TACC_USERNAME"</span>),
-          <span style="color: #FBB829;">password</span><span style="color: #EF2F27;">=</span>os.<span style="color: #918175; font-style: italic;">getenv</span>(<span style="color: #98BC37;">"TACC_PASSWORD"</span>))
-t.<span style="color: #918175; font-style: italic;">get_tokens</span>()
-<span style="color: #918175; font-style: italic;"># t.access_token</span>
+<span style="color: #00d3d0;">t</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Tapis</span>(<span style="color: #ff9077;">base_url</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"https://designsafe.tapis.io"</span>,
+          <span style="color: #ff9077;">username</span><span style="color: #b6a0ff;">=</span>os.<span style="color: #00bcff; font-style: italic;">getenv</span>(<span style="color: #79a8ff;">"TACC_USERNAME"</span>),
+          <span style="color: #ff9077;">password</span><span style="color: #b6a0ff;">=</span>os.<span style="color: #00bcff; font-style: italic;">getenv</span>(<span style="color: #79a8ff;">"TACC_PASSWORD"</span>))
+t.<span style="color: #00bcff; font-style: italic;">get_tokens</span>()
+<span style="color: #a8a8a8;"># t.access_token</span>
 </pre>
 </div>
 
@@ -782,11 +788,11 @@ t.<span style="color: #918175; font-style: italic;">get_tokens</span>()
 Using the <code>systemId</code> as <kbd>designsafe.storage.default</kbd>, fetch files.
 </p>
 <div class="org-src-container">
-<pre class="src src-jupyter-python">t.<span style="color: #FF5C8F; font-style: italic;">files</span>.<span style="color: #918175; font-style: italic;">listFiles</span>(<span style="color: #FBB829;">systemId</span><span style="color: #EF2F27;">=</span><span style="color: #98BC37;">"designsafe.storage.default"</span>, <span style="color: #FBB829;">path</span><span style="color: #EF2F27;">=</span><span style="color: #98BC37;">"chahak"</span>)
+<pre class="src src-jupyter-python">t.<span style="color: #00bcff; font-style: italic;">files</span>.<span style="color: #00bcff; font-style: italic;">listFiles</span>(<span style="color: #ff9077;">systemId</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"designsafe.storage.default"</span>, <span style="color: #ff9077;">path</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"chahak"</span>)
 </pre>
 </div>
 
-<pre class="example" id="org9559c53">
+<pre class="example" id="org5db2bde">
   ---------------------------------------------------------------------------
   NotFoundError                             Traceback (most recent call last)
   Cell In[6], line 1
@@ -832,38 +838,38 @@ Using the <code>requests</code> module, we can create a request to <kbd>https://
 </p>
 
 <div class="org-src-container">
-<pre class="src src-jupyter-python"><span style="color: #EF2F27;">from</span> pprint <span style="color: #EF2F27;">import</span> pprint
-<span style="color: #EF2F27;">import</span> requests
+<pre class="src src-jupyter-python"><span style="color: #b6a0ff;">from</span> pprint <span style="color: #b6a0ff;">import</span> pprint
+<span style="color: #b6a0ff;">import</span> requests
 
-<span style="color: #0AAEB3;">url</span> <span style="color: #EF2F27;">=</span> <span style="color: #98BC37;">"https://designsafe-ci.org/api/publications/listing"</span>
+<span style="color: #00d3d0;">url</span> <span style="color: #b6a0ff;">=</span> <span style="color: #79a8ff;">"https://designsafe-ci.org/api/publications/listing"</span>
 
-<span style="color: #0AAEB3;">querystring</span> <span style="color: #EF2F27;">=</span> {<span style="color: #98BC37;">"limit"</span>:<span style="color: #98BC37;">"3"</span>}
+<span style="color: #00d3d0;">querystring</span> <span style="color: #b6a0ff;">=</span> {<span style="color: #79a8ff;">"limit"</span>:<span style="color: #79a8ff;">"3"</span>}
 
-<span style="color: #0AAEB3;">payload</span> <span style="color: #EF2F27;">=</span> <span style="color: #98BC37;">""</span>
-<span style="color: #0AAEB3;">headers</span> <span style="color: #EF2F27;">=</span> {
-    <span style="color: #918175; font-style: italic;"># "cookie": "django_language=en-us",</span>
-    <span style="color: #918175; font-style: italic;"># "Host": "www.designsafe-ci.org",</span>
-    <span style="color: #98BC37;">"User-Agent"</span>: <span style="color: #98BC37;">"Mozilla/5.0 (X11; Linux x86_64; rv:108.0) Gecko/20100101 Firefox/108.0"</span>,
-    <span style="color: #98BC37;">"Accept"</span>: <span style="color: #98BC37;">"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"</span>,
-    <span style="color: #98BC37;">"Accept-Language"</span>: <span style="color: #98BC37;">"en-US,en;q=0.5"</span>,
-    <span style="color: #98BC37;">"Accept-Encoding"</span>: <span style="color: #98BC37;">"gzip, deflate, br"</span>,
-    <span style="color: #98BC37;">"DNT"</span>: <span style="color: #98BC37;">"1"</span>,
-    <span style="color: #98BC37;">"Connection"</span>: <span style="color: #98BC37;">"keep-alive"</span>,
-    <span style="color: #98BC37;">"Upgrade-Insecure-Requests"</span>: <span style="color: #98BC37;">"1"</span>,
-    <span style="color: #98BC37;">"Sec-Fetch-Dest"</span>: <span style="color: #98BC37;">"document"</span>,
-    <span style="color: #98BC37;">"Sec-Fetch-Mode"</span>: <span style="color: #98BC37;">"navigate"</span>,
-    <span style="color: #98BC37;">"Sec-Fetch-Site"</span>: <span style="color: #98BC37;">"none"</span>,
-    <span style="color: #98BC37;">"Sec-Fetch-User"</span>: <span style="color: #98BC37;">"?1"</span>,
-    <span style="color: #98BC37;">"TE"</span>: <span style="color: #98BC37;">"trailers"</span>
+<span style="color: #00d3d0;">payload</span> <span style="color: #b6a0ff;">=</span> <span style="color: #79a8ff;">""</span>
+<span style="color: #00d3d0;">headers</span> <span style="color: #b6a0ff;">=</span> {
+    <span style="color: #a8a8a8;"># "cookie": "django_language=en-us",</span>
+    <span style="color: #a8a8a8;"># "Host": "www.designsafe-ci.org",</span>
+    <span style="color: #79a8ff;">"User-Agent"</span>: <span style="color: #79a8ff;">"Mozilla/5.0 (X11; Linux x86_64; rv:108.0) Gecko/20100101 Firefox/108.0"</span>,
+    <span style="color: #79a8ff;">"Accept"</span>: <span style="color: #79a8ff;">"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"</span>,
+    <span style="color: #79a8ff;">"Accept-Language"</span>: <span style="color: #79a8ff;">"en-US,en;q=0.5"</span>,
+    <span style="color: #79a8ff;">"Accept-Encoding"</span>: <span style="color: #79a8ff;">"gzip, deflate, br"</span>,
+    <span style="color: #79a8ff;">"DNT"</span>: <span style="color: #79a8ff;">"1"</span>,
+    <span style="color: #79a8ff;">"Connection"</span>: <span style="color: #79a8ff;">"keep-alive"</span>,
+    <span style="color: #79a8ff;">"Upgrade-Insecure-Requests"</span>: <span style="color: #79a8ff;">"1"</span>,
+    <span style="color: #79a8ff;">"Sec-Fetch-Dest"</span>: <span style="color: #79a8ff;">"document"</span>,
+    <span style="color: #79a8ff;">"Sec-Fetch-Mode"</span>: <span style="color: #79a8ff;">"navigate"</span>,
+    <span style="color: #79a8ff;">"Sec-Fetch-Site"</span>: <span style="color: #79a8ff;">"none"</span>,
+    <span style="color: #79a8ff;">"Sec-Fetch-User"</span>: <span style="color: #79a8ff;">"?1"</span>,
+    <span style="color: #79a8ff;">"TE"</span>: <span style="color: #79a8ff;">"trailers"</span>
 }
 
-<span style="color: #0AAEB3;">response</span> <span style="color: #EF2F27;">=</span> requests.<span style="color: #918175; font-style: italic;">request</span>(<span style="color: #98BC37;">"GET"</span>, url, <span style="color: #FBB829;">data</span><span style="color: #EF2F27;">=</span>payload, <span style="color: #FBB829;">headers</span><span style="color: #EF2F27;">=</span>headers, <span style="color: #FBB829;">params</span><span style="color: #EF2F27;">=</span>querystring)
+<span style="color: #00d3d0;">response</span> <span style="color: #b6a0ff;">=</span> requests.<span style="color: #00bcff; font-style: italic;">request</span>(<span style="color: #79a8ff;">"GET"</span>, url, <span style="color: #ff9077;">data</span><span style="color: #b6a0ff;">=</span>payload, <span style="color: #ff9077;">headers</span><span style="color: #b6a0ff;">=</span>headers, <span style="color: #ff9077;">params</span><span style="color: #b6a0ff;">=</span>querystring)
 
-<span style="color: #918175; font-style: italic;">pprint</span>(response.<span style="color: #918175; font-style: italic;">json</span>())
+<span style="color: #00bcff;">pprint</span>(response.<span style="color: #00bcff; font-style: italic;">json</span>())
 </pre>
 </div>
 
-<pre class="example" id="org421d624">
+<pre class="example" id="org59a2994">
 {'listing': [{'created': '2023-01-09T21:13:07.982682',
               'pi': 'Zhang, Wenyang',
               'project': {'value': {'keywords': 'Physics-based ground motion '
@@ -912,14 +918,14 @@ For a given <kbd>projectId</kbd>, we need to get all the result files. The infor
 </p>
 
 <div class="org-src-container">
-<pre class="src src-jupyter-python"><span style="color: #0AAEB3;">projectId</span> <span style="color: #EF2F27;">=</span> <span style="color: #98BC37;">"PRJ-3484"</span>
-<span style="color: #0AAEB3;">url</span> <span style="color: #EF2F27;">=</span> <span style="color: #98BC37;">f"https://designsafe-ci.org/api/projects/publication/</span><span style="color: #EF2F27;">{</span><span style="color: #FCE8C3; background-color: #1C1B19;">projectId</span><span style="color: #EF2F27;">}</span><span style="color: #98BC37;">"</span>
+<pre class="src src-jupyter-python"><span style="color: #00d3d0;">projectId</span> <span style="color: #b6a0ff;">=</span> <span style="color: #79a8ff;">"PRJ-3484"</span>
+<span style="color: #00d3d0;">url</span> <span style="color: #b6a0ff;">=</span> <span style="color: #79a8ff;">f"https://designsafe-ci.org/api/projects/publication/</span><span style="color: #b6a0ff;">{</span><span style="color: #ffffff; background-color: #000000;">projectId</span><span style="color: #b6a0ff;">}</span><span style="color: #79a8ff;">"</span>
 
-<span style="color: #0AAEB3;">payload</span> <span style="color: #EF2F27;">=</span> <span style="color: #98BC37;">""</span>
-<span style="color: #0AAEB3;">headers</span> <span style="color: #EF2F27;">=</span> {<span style="color: #98BC37;">"cookie"</span>: <span style="color: #98BC37;">"django_language=en-us"</span>}
+<span style="color: #00d3d0;">payload</span> <span style="color: #b6a0ff;">=</span> <span style="color: #79a8ff;">""</span>
+<span style="color: #00d3d0;">headers</span> <span style="color: #b6a0ff;">=</span> {<span style="color: #79a8ff;">"cookie"</span>: <span style="color: #79a8ff;">"django_language=en-us"</span>}
 
-<span style="color: #0AAEB3;">response</span> <span style="color: #EF2F27;">=</span> requests.<span style="color: #918175; font-style: italic;">request</span>(<span style="color: #98BC37;">"GET"</span>, url, <span style="color: #FBB829;">data</span><span style="color: #EF2F27;">=</span>payload, <span style="color: #FBB829;">headers</span><span style="color: #EF2F27;">=</span>headers)
-<span style="color: #0AAEB3;">response_json</span> <span style="color: #EF2F27;">=</span> response.<span style="color: #918175; font-style: italic;">json</span>()
+<span style="color: #00d3d0;">response</span> <span style="color: #b6a0ff;">=</span> requests.<span style="color: #00bcff; font-style: italic;">request</span>(<span style="color: #79a8ff;">"GET"</span>, url, <span style="color: #ff9077;">data</span><span style="color: #b6a0ff;">=</span>payload, <span style="color: #ff9077;">headers</span><span style="color: #b6a0ff;">=</span>headers)
+<span style="color: #00d3d0;">response_json</span> <span style="color: #b6a0ff;">=</span> response.<span style="color: #00bcff; font-style: italic;">json</span>()
 </pre>
 </div>
 
@@ -929,17 +935,17 @@ For a given <kbd>projectId</kbd>, we need to get all the result files. The infor
 </ul>
 
 <div class="org-src-container">
-<pre class="src src-jupyter-python"><span style="color: #0AAEB3;">files_info</span> <span style="color: #EF2F27;">=</span> <span style="color: #2C78BF; font-style: italic;">dict</span>()
-<span style="color: #EF2F27;">for</span> <span style="color: #0AAEB3;">i</span>, <span style="color: #0AAEB3;">event</span> <span style="color: #EF2F27;">in</span> <span style="color: #2C78BF; font-style: italic;">enumerate</span>(response_json[<span style="color: #98BC37;">"eventsList"</span>]):
-    files_info[<span style="color: #0AAEB3;">i</span>] <span style="color: #EF2F27;">=</span> {
-        <span style="color: #98BC37;">"title"</span>: event[<span style="color: #98BC37;">"value"</span>][<span style="color: #98BC37;">"title"</span>],
-        <span style="color: #98BC37;">"files"</span>: event[<span style="color: #98BC37;">"fileObjs"</span>]
+<pre class="src src-jupyter-python"><span style="color: #00d3d0;">files_info</span> <span style="color: #b6a0ff;">=</span> <span style="color: #f78fe7;">dict</span>()
+<span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">i</span>, <span style="color: #00d3d0;">event</span> <span style="color: #b6a0ff;">in</span> <span style="color: #f78fe7;">enumerate</span>(response_json[<span style="color: #79a8ff;">"eventsList"</span>]):
+    files_info[<span style="color: #00d3d0;">i</span>] <span style="color: #b6a0ff;">=</span> {
+        <span style="color: #79a8ff;">"title"</span>: event[<span style="color: #79a8ff;">"value"</span>][<span style="color: #79a8ff;">"title"</span>],
+        <span style="color: #79a8ff;">"files"</span>: event[<span style="color: #79a8ff;">"fileObjs"</span>]
         }
-<span style="color: #918175; font-style: italic;">pprint</span>(files_info[<span style="color: #FF5C8F;">0</span>])
+<span style="color: #00bcff;">pprint</span>(files_info[<span style="color: #00bcff;">0</span>])
 </pre>
 </div>
 
-<pre class="example" id="orgf69b717">
+<pre class="example" id="org79633cc">
 {'files': [{'name': 'eo_0_601_sigv_100_CSR_0_150_Tau_40_.csv',
             'path': '/eo_0_601_sigv_100_CSR_0_150_Tau_40_.csv',
             'system': 'project-3122606422211489300-242ac118-0001-012',
@@ -977,22 +983,22 @@ On the other hand, <code>tapis cli</code> uses <code>agavepy</code> to download 
 </p>
 
 <div class="org-src-container">
-<pre class="src src-jupyter-python"><span style="color: #EF2F27;">from</span> agavepy <span style="color: #EF2F27;">import</span> <span style="color: #68A8E4;">Agave</span>
-<span style="color: #0AAEB3;">ag</span> <span style="color: #EF2F27;">=</span> <span style="color: #68A8E4;">Agave</span>.<span style="color: #918175; font-style: italic;">restore</span>()
+<pre class="src src-jupyter-python"><span style="color: #b6a0ff;">from</span> agavepy <span style="color: #b6a0ff;">import</span> <span style="color: #6ae4b9;">Agave</span>
+<span style="color: #00d3d0;">ag</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Agave</span>.<span style="color: #00bcff; font-style: italic;">restore</span>()
 </pre>
 </div>
 
 <div class="org-src-container">
-<pre class="src src-jupyter-python"><span style="color: #0AAEB3;">rsp</span> <span style="color: #EF2F27;">=</span> ag.<span style="color: #FF5C8F; font-style: italic;">files</span>.<span style="color: #918175; font-style: italic;">download</span>(<span style="color: #FBB829;">systemId</span><span style="color: #EF2F27;">=</span><span style="color: #98BC37;">"designsafe.storage.published"</span>, <span style="color: #FBB829;">filePath</span><span style="color: #EF2F27;">=</span><span style="color: #98BC37;">"PRJ-3484/eo_0_631_sigv_40_CSR_0_190_Tau_0_.csv"</span>)
-<span style="color: #EF2F27;">if</span> <span style="color: #2C78BF; font-style: italic;">isinstance</span>(rsp, dict):
-    <span style="color: #EF2F27;">raise</span> <span style="color: #68A8E4; font-style: italic;">Error</span>(<span style="color: #98BC37;">f"Failed to download"</span>)
-<span style="color: #EF2F27;">with</span> <span style="color: #2C78BF; font-style: italic;">open</span>(<span style="color: #98BC37;">'test.csv'</span>, <span style="color: #98BC37;">'wb'</span>) <span style="color: #EF2F27;">as</span> dest_file:
-    <span style="color: #EF2F27;">for</span> <span style="color: #0AAEB3;">block</span> <span style="color: #EF2F27;">in</span> rsp.<span style="color: #918175; font-style: italic;">iter_content</span>(<span style="color: #FF5C8F;">4096</span>):
-        <span style="color: #EF2F27;">if</span> <span style="color: #EF2F27;">not</span> block:
-            <span style="color: #EF2F27;">break</span>
-        dest_file.<span style="color: #918175; font-style: italic;">write</span>(block)
+<pre class="src src-jupyter-python"><span style="color: #00d3d0;">rsp</span> <span style="color: #b6a0ff;">=</span> ag.<span style="color: #00bcff; font-style: italic;">files</span>.<span style="color: #00bcff; font-style: italic;">download</span>(<span style="color: #ff9077;">systemId</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"designsafe.storage.published"</span>, <span style="color: #ff9077;">filePath</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"PRJ-3484/eo_0_631_sigv_40_CSR_0_190_Tau_0_.csv"</span>)
+<span style="color: #b6a0ff;">if</span> <span style="color: #f78fe7;">isinstance</span>(rsp, dict):
+    <span style="color: #b6a0ff;">raise</span> <span style="color: #6ae4b9;">Error</span>(<span style="color: #79a8ff;">f"Failed to download"</span>)
+<span style="color: #b6a0ff;">with</span> <span style="color: #f78fe7;">open</span>(<span style="color: #79a8ff;">'test.csv'</span>, <span style="color: #79a8ff;">'wb'</span>) <span style="color: #b6a0ff;">as</span> dest_file:
+    <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">block</span> <span style="color: #b6a0ff;">in</span> rsp.<span style="color: #00bcff; font-style: italic;">iter_content</span>(<span style="color: #00bcff;">4096</span>):
+        <span style="color: #b6a0ff;">if</span> <span style="color: #b6a0ff;">not</span> block:
+            <span style="color: #b6a0ff;">break</span>
+        dest_file.<span style="color: #00bcff; font-style: italic;">write</span>(block)
 
-<span style="color: #2C78BF; font-style: italic;">print</span>(os.<span style="color: #FF5C8F; font-style: italic;">path</span>.<span style="color: #918175; font-style: italic;">isfile</span>(<span style="color: #98BC37;">'test.csv'</span>))
+<span style="color: #f78fe7;">print</span>(os.<span style="color: #00bcff; font-style: italic;">path</span>.<span style="color: #00bcff; font-style: italic;">isfile</span>(<span style="color: #79a8ff;">'test.csv'</span>))
 </pre>
 </div>
 
@@ -1015,58 +1021,58 @@ Now it is time to combine all of the above together to get all the files of a pr
 </p>
 
 <div class="org-src-container">
-<pre class="src src-jupyter-python"><span style="color: #EF2F27;">import</span> os
-<span style="color: #EF2F27;">import</span> requests
-<span style="color: #EF2F27;">from</span> tqdm <span style="color: #EF2F27;">import</span> tqdm
-<span style="color: #EF2F27;">from</span> agavepy <span style="color: #EF2F27;">import</span> <span style="color: #68A8E4;">Agave</span>
-<span style="color: #0AAEB3;">ag</span> <span style="color: #EF2F27;">=</span> <span style="color: #68A8E4;">Agave</span>.<span style="color: #918175; font-style: italic;">restore</span>()
+<pre class="src src-jupyter-python"><span style="color: #b6a0ff;">import</span> os
+<span style="color: #b6a0ff;">import</span> requests
+<span style="color: #b6a0ff;">from</span> tqdm <span style="color: #b6a0ff;">import</span> tqdm
+<span style="color: #b6a0ff;">from</span> agavepy <span style="color: #b6a0ff;">import</span> <span style="color: #6ae4b9;">Agave</span>
+<span style="color: #00d3d0;">ag</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Agave</span>.<span style="color: #00bcff; font-style: italic;">restore</span>()
 
 
-<span style="color: #EF2F27;">def</span> <span style="color: #FBB829;">download_file</span>(<span style="color: #0AAEB3;">filepath</span>, <span style="color: #0AAEB3;">dirpath</span>):
-    <span style="color: #0AAEB3;">rsp</span> <span style="color: #EF2F27;">=</span> ag.<span style="color: #FF5C8F; font-style: italic;">files</span>.<span style="color: #918175; font-style: italic;">download</span>(<span style="color: #FBB829;">systemId</span><span style="color: #EF2F27;">=</span><span style="color: #98BC37;">"designsafe.storage.published"</span>,
-                            <span style="color: #FBB829;">filePath</span><span style="color: #EF2F27;">=</span>filepath)
-    <span style="color: #EF2F27;">if</span> <span style="color: #2C78BF; font-style: italic;">isinstance</span>(rsp, dict):
-        <span style="color: #EF2F27;">raise</span> <span style="color: #68A8E4; font-style: italic;">Error</span>(<span style="color: #98BC37;">f"Failed to download: </span><span style="color: #EF2F27;">{</span><span style="color: #FCE8C3; background-color: #1C1B19;">filepath</span><span style="color: #EF2F27;">}</span><span style="color: #98BC37;">"</span>)
-    <span style="color: #EF2F27;">if</span> <span style="color: #EF2F27;">not</span> os.<span style="color: #FF5C8F; font-style: italic;">path</span>.<span style="color: #918175; font-style: italic;">isdir</span>(dirpath):
-        os.<span style="color: #918175; font-style: italic;">makedirs</span>(dirpath)
-    <span style="color: #EF2F27;">with</span> <span style="color: #2C78BF; font-style: italic;">open</span>(os.<span style="color: #FF5C8F; font-style: italic;">path</span>.<span style="color: #918175; font-style: italic;">join</span>(dirpath, os.<span style="color: #FF5C8F; font-style: italic;">path</span>.<span style="color: #918175; font-style: italic;">basename</span>(filepath)), <span style="color: #98BC37;">"wb"</span>) <span style="color: #EF2F27;">as</span> f:
-        <span style="color: #EF2F27;">try</span>:
-            <span style="color: #EF2F27;">for</span> <span style="color: #0AAEB3;">block</span> <span style="color: #EF2F27;">in</span> rsp.<span style="color: #918175; font-style: italic;">iter_content</span>(<span style="color: #FF5C8F;">4096</span>):
-                <span style="color: #EF2F27;">if</span> <span style="color: #EF2F27;">not</span> block:
-                    <span style="color: #EF2F27;">break</span>
-                f.<span style="color: #918175; font-style: italic;">write</span>(block)
-        <span style="color: #EF2F27;">except</span> <span style="color: #68A8E4;">Exception</span> <span style="color: #EF2F27;">as</span> e:
-            <span style="color: #EF2F27;">raise</span> e
-    <span style="color: #EF2F27;">return</span> <span style="color: #2C78BF;">True</span>
+<span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">download_file</span>(<span style="color: #00d3d0;">filepath</span>, <span style="color: #00d3d0;">dirpath</span>):
+    <span style="color: #00d3d0;">rsp</span> <span style="color: #b6a0ff;">=</span> ag.<span style="color: #00bcff; font-style: italic;">files</span>.<span style="color: #00bcff; font-style: italic;">download</span>(<span style="color: #ff9077;">systemId</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"designsafe.storage.published"</span>,
+                            <span style="color: #ff9077;">filePath</span><span style="color: #b6a0ff;">=</span>filepath)
+    <span style="color: #b6a0ff;">if</span> <span style="color: #f78fe7;">isinstance</span>(rsp, dict):
+        <span style="color: #b6a0ff;">raise</span> <span style="color: #6ae4b9;">Error</span>(<span style="color: #79a8ff;">f"Failed to download: </span><span style="color: #b6a0ff;">{</span><span style="color: #ffffff; background-color: #000000;">filepath</span><span style="color: #b6a0ff;">}</span><span style="color: #79a8ff;">"</span>)
+    <span style="color: #b6a0ff;">if</span> <span style="color: #b6a0ff;">not</span> os.<span style="color: #00bcff; font-style: italic;">path</span>.<span style="color: #00bcff; font-style: italic;">isdir</span>(dirpath):
+        os.<span style="color: #00bcff; font-style: italic;">makedirs</span>(dirpath)
+    <span style="color: #b6a0ff;">with</span> <span style="color: #f78fe7;">open</span>(os.<span style="color: #00bcff; font-style: italic;">path</span>.<span style="color: #00bcff; font-style: italic;">join</span>(dirpath, os.<span style="color: #00bcff; font-style: italic;">path</span>.<span style="color: #00bcff; font-style: italic;">basename</span>(filepath)), <span style="color: #79a8ff;">"wb"</span>) <span style="color: #b6a0ff;">as</span> f:
+        <span style="color: #b6a0ff;">try</span>:
+            <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">block</span> <span style="color: #b6a0ff;">in</span> rsp.<span style="color: #00bcff; font-style: italic;">iter_content</span>(<span style="color: #00bcff;">4096</span>):
+                <span style="color: #b6a0ff;">if</span> <span style="color: #b6a0ff;">not</span> block:
+                    <span style="color: #b6a0ff;">break</span>
+                f.<span style="color: #00bcff; font-style: italic;">write</span>(block)
+        <span style="color: #b6a0ff;">except</span> <span style="color: #6ae4b9;">Exception</span> <span style="color: #b6a0ff;">as</span> e:
+            <span style="color: #b6a0ff;">raise</span> e
+    <span style="color: #b6a0ff;">return</span> <span style="color: #f78fe7;">True</span>
 
 
-<span style="color: #EF2F27;">def</span> <span style="color: #FBB829;">download_project</span>(<span style="color: #0AAEB3;">projectId</span>):
-    <span style="color: #0AAEB3;">url</span> <span style="color: #EF2F27;">=</span> <span style="color: #98BC37;">f"https://designsafe-ci.org/api/projects/publication/</span><span style="color: #EF2F27;">{</span><span style="color: #FCE8C3; background-color: #1C1B19;">projectId</span><span style="color: #EF2F27;">}</span><span style="color: #98BC37;">"</span>
+<span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">download_project</span>(<span style="color: #00d3d0;">projectId</span>):
+    <span style="color: #00d3d0;">url</span> <span style="color: #b6a0ff;">=</span> <span style="color: #79a8ff;">f"https://designsafe-ci.org/api/projects/publication/</span><span style="color: #b6a0ff;">{</span><span style="color: #ffffff; background-color: #000000;">projectId</span><span style="color: #b6a0ff;">}</span><span style="color: #79a8ff;">"</span>
 
-    <span style="color: #0AAEB3;">payload</span> <span style="color: #EF2F27;">=</span> <span style="color: #98BC37;">""</span>
-    <span style="color: #0AAEB3;">headers</span> <span style="color: #EF2F27;">=</span> <span style="color: #98BC37;">""</span>
+    <span style="color: #00d3d0;">payload</span> <span style="color: #b6a0ff;">=</span> <span style="color: #79a8ff;">""</span>
+    <span style="color: #00d3d0;">headers</span> <span style="color: #b6a0ff;">=</span> <span style="color: #79a8ff;">""</span>
 
-    <span style="color: #0AAEB3;">response</span> <span style="color: #EF2F27;">=</span> requests.<span style="color: #918175; font-style: italic;">get</span>(url, <span style="color: #FBB829;">data</span><span style="color: #EF2F27;">=</span>payload, <span style="color: #FBB829;">headers</span><span style="color: #EF2F27;">=</span>headers)
-    <span style="color: #0AAEB3;">response_json</span> <span style="color: #EF2F27;">=</span> response.<span style="color: #918175; font-style: italic;">json</span>()
+    <span style="color: #00d3d0;">response</span> <span style="color: #b6a0ff;">=</span> requests.<span style="color: #00bcff; font-style: italic;">get</span>(url, <span style="color: #ff9077;">data</span><span style="color: #b6a0ff;">=</span>payload, <span style="color: #ff9077;">headers</span><span style="color: #b6a0ff;">=</span>headers)
+    <span style="color: #00d3d0;">response_json</span> <span style="color: #b6a0ff;">=</span> response.<span style="color: #00bcff; font-style: italic;">json</span>()
 
-    <span style="color: #0AAEB3;">files_info</span> <span style="color: #EF2F27;">=</span> <span style="color: #2C78BF; font-style: italic;">dict</span>()
-    <span style="color: #EF2F27;">for</span> <span style="color: #0AAEB3;">i</span>, <span style="color: #0AAEB3;">event</span> <span style="color: #EF2F27;">in</span> <span style="color: #2C78BF; font-style: italic;">enumerate</span>(response_json[<span style="color: #98BC37;">"eventsList"</span>]):
-        files_info[<span style="color: #0AAEB3;">i</span>] <span style="color: #EF2F27;">=</span> {
-            <span style="color: #98BC37;">"title"</span>: event[<span style="color: #98BC37;">"value"</span>][<span style="color: #98BC37;">"title"</span>],
-            <span style="color: #98BC37;">"files"</span>: event[<span style="color: #98BC37;">"fileObjs"</span>],
+    <span style="color: #00d3d0;">files_info</span> <span style="color: #b6a0ff;">=</span> <span style="color: #f78fe7;">dict</span>()
+    <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">i</span>, <span style="color: #00d3d0;">event</span> <span style="color: #b6a0ff;">in</span> <span style="color: #f78fe7;">enumerate</span>(response_json[<span style="color: #79a8ff;">"eventsList"</span>]):
+        files_info[<span style="color: #00d3d0;">i</span>] <span style="color: #b6a0ff;">=</span> {
+            <span style="color: #79a8ff;">"title"</span>: event[<span style="color: #79a8ff;">"value"</span>][<span style="color: #79a8ff;">"title"</span>],
+            <span style="color: #79a8ff;">"files"</span>: event[<span style="color: #79a8ff;">"fileObjs"</span>],
         }
 
-    <span style="color: #EF2F27;">for</span> <span style="color: #0AAEB3;">event</span>, <span style="color: #0AAEB3;">data</span> <span style="color: #EF2F27;">in</span> <span style="color: #918175; font-style: italic;">tqdm</span>(files_info.<span style="color: #918175; font-style: italic;">items</span>()):
-        <span style="color: #0AAEB3;">dirpath</span> <span style="color: #EF2F27;">=</span> <span style="color: #98BC37;">f"</span><span style="color: #EF2F27;">{</span><span style="color: #FCE8C3; background-color: #1C1B19;">projectId</span><span style="color: #EF2F27;">}</span><span style="color: #98BC37;">/</span><span style="color: #EF2F27;">{</span><span style="color: #FCE8C3; background-color: #1C1B19;">data[</span><span style="color: #98BC37; background-color: #1C1B19;">'</span><span style="color: #FCE8C3; background-color: #1C1B19;">title</span><span style="color: #98BC37; background-color: #1C1B19;">'</span><span style="color: #FCE8C3; background-color: #1C1B19;">]</span><span style="color: #EF2F27;">}</span><span style="color: #98BC37;">"</span>
-        <span style="color: #EF2F27;">for</span> <span style="color: #0AAEB3;">file</span> <span style="color: #EF2F27;">in</span> <span style="color: #918175; font-style: italic;">tqdm</span>(data[<span style="color: #98BC37;">"files"</span>], <span style="color: #FBB829;">leave</span><span style="color: #EF2F27;">=</span><span style="color: #2C78BF;">False</span>):
-            <span style="color: #0AAEB3;">filepath</span> <span style="color: #EF2F27;">=</span> <span style="color: #98BC37;">f"</span><span style="color: #EF2F27;">{</span><span style="color: #FCE8C3; background-color: #1C1B19;">projectId</span><span style="color: #EF2F27;">}</span><span style="color: #98BC37;">/</span><span style="color: #EF2F27;">{</span><span style="color: #FCE8C3; background-color: #1C1B19;">file[</span><span style="color: #98BC37; background-color: #1C1B19;">'</span><span style="color: #FCE8C3; background-color: #1C1B19;">path</span><span style="color: #98BC37; background-color: #1C1B19;">'</span><span style="color: #FCE8C3; background-color: #1C1B19;">]</span><span style="color: #EF2F27;">}</span><span style="color: #98BC37;">"</span>
-            <span style="color: #918175; font-style: italic;">download_file</span>(filepath, dirpath)
+    <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">event</span>, <span style="color: #00d3d0;">data</span> <span style="color: #b6a0ff;">in</span> <span style="color: #00bcff;">tqdm</span>(files_info.<span style="color: #00bcff; font-style: italic;">items</span>()):
+        <span style="color: #00d3d0;">dirpath</span> <span style="color: #b6a0ff;">=</span> <span style="color: #79a8ff;">f"</span><span style="color: #b6a0ff;">{</span><span style="color: #ffffff; background-color: #000000;">projectId</span><span style="color: #b6a0ff;">}</span><span style="color: #79a8ff;">/</span><span style="color: #b6a0ff;">{</span><span style="color: #ffffff; background-color: #000000;">data[</span><span style="color: #79a8ff; background-color: #000000;">'</span><span style="color: #ffffff; background-color: #000000;">title</span><span style="color: #79a8ff; background-color: #000000;">'</span><span style="color: #ffffff; background-color: #000000;">]</span><span style="color: #b6a0ff;">}</span><span style="color: #79a8ff;">"</span>
+        <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">file</span> <span style="color: #b6a0ff;">in</span> <span style="color: #00bcff;">tqdm</span>(data[<span style="color: #79a8ff;">"files"</span>], <span style="color: #ff9077;">leave</span><span style="color: #b6a0ff;">=</span><span style="color: #f78fe7;">False</span>):
+            <span style="color: #00d3d0;">filepath</span> <span style="color: #b6a0ff;">=</span> <span style="color: #79a8ff;">f"</span><span style="color: #b6a0ff;">{</span><span style="color: #ffffff; background-color: #000000;">projectId</span><span style="color: #b6a0ff;">}</span><span style="color: #79a8ff;">/</span><span style="color: #b6a0ff;">{</span><span style="color: #ffffff; background-color: #000000;">file[</span><span style="color: #79a8ff; background-color: #000000;">'</span><span style="color: #ffffff; background-color: #000000;">path</span><span style="color: #79a8ff; background-color: #000000;">'</span><span style="color: #ffffff; background-color: #000000;">]</span><span style="color: #b6a0ff;">}</span><span style="color: #79a8ff;">"</span>
+            <span style="color: #00bcff;">download_file</span>(filepath, dirpath)
 
-    <span style="color: #EF2F27;">return</span>
+    <span style="color: #b6a0ff;">return</span>
 
 
-<span style="color: #0AAEB3;">projectId</span> <span style="color: #EF2F27;">=</span> <span style="color: #98BC37;">"PRJ-3484"</span>
-<span style="color: #918175; font-style: italic;">download_project</span>(projectId)
+<span style="color: #00d3d0;">projectId</span> <span style="color: #b6a0ff;">=</span> <span style="color: #79a8ff;">"PRJ-3484"</span>
+<span style="color: #00bcff;">download_project</span>(projectId)
 </pre>
 </div>
 
@@ -1079,7 +1085,7 @@ This downloads the project files and stores the files in the following structure
 </pre>
 </div>
 
-<pre class="example" id="orgb9ee30b">
+<pre class="example" id="org05eb178">
 PRJ-3484
 ├── CDSS tests with Sig_v = 100 kPa, Dr = 66.7%, Alpha = 0
 │   ├── eo_0_600_sigv_100_CSR_0_170_Tau_0_.csv
@@ -1147,6 +1153,150 @@ PRJ-3484
 
 10 directories, 54 files
 </pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org702b80e" class="outline-2">
+<h2 id="org702b80e"><span class="section-number-2">6.</span> Store information in a neo4j database</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+As starting step for creating the graph database, we&rsquo;ll create a structure that would enable the queries of the type
+</p>
+
+<blockquote>
+<p>
+What projects record information regarding shear<sub>strain</sub>?
+</p>
+</blockquote>
+</div>
+
+<div id="outline-container-orgb327795" class="outline-3">
+<h3 id="orgb327795"><span class="section-number-3">6.1.</span> Connecting to a Neo4j database</h3>
+<div class="outline-text-3" id="text-6-1">
+<p>
+I&rsquo;ve created a neo4j project locally. I can now use <kbd>py2neo</kbd> to connect to this database.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python"><span style="color: #b6a0ff;">from</span> py2neo <span style="color: #b6a0ff;">import</span> <span style="color: #6ae4b9;">Graph</span>
+
+<span style="color: #00d3d0;">tuitus_db</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Graph</span>(<span style="color: #79a8ff;">"bolt://localhost:7687"</span>, <span style="color: #ff9077;">user</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"neo4j"</span>, <span style="color: #ff9077;">password</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"tuitusci"</span>)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org8fef419" class="outline-3">
+<h3 id="org8fef419"><span class="section-number-3">6.2.</span> Adding nodes</h3>
+<div class="outline-text-3" id="text-6-2">
+<p>
+To add node for a project, say PRJ-3484, we use the <kbd>Graph.create</kbd> method with the <kbd>Node</kbd> class.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python"><span style="color: #b6a0ff;">from</span> py2neo <span style="color: #b6a0ff;">import</span> <span style="color: #6ae4b9;">Node</span>, <span style="color: #6ae4b9;">Relationship</span>
+
+<span style="color: #00d3d0;">project_node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Node</span>(<span style="color: #79a8ff;">"Project"</span>, <span style="color: #ff9077;">name</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"PRJ-3484"</span>)
+tuitus_db.<span style="color: #00bcff; font-style: italic;">create</span>(project_node)
+</pre>
+</div>
+
+<p>
+This project will be supervised by a PI, information for which can be found in the project JSON.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python"><span style="color: #00d3d0;">pi_node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Node</span>(<span style="color: #79a8ff;">"Author"</span>, <span style="color: #ff9077;">name</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"mmanzari"</span>)
+tuitus_db.<span style="color: #00bcff; font-style: italic;">create</span>(pi_node)
+<span style="color: #00d3d0;">pi_rel</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Relationship</span>(pi_node, <span style="color: #79a8ff;">"SUPERVISES"</span>, project_node)
+tuitus_db.<span style="color: #00bcff; font-style: italic;">create</span>(pi_rel)
+</pre>
+</div>
+
+<p>
+A project can have multiple experiments, each of which can record different information.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python"><span style="color: #a8a8a8;"># len(tuitus_db.nodes.match("Project", name="PRJ-3484"))</span>
+
+<span style="color: #00d3d0;">project_id</span> <span style="color: #b6a0ff;">=</span> <span style="color: #79a8ff;">"PRJ-3484"</span>
+<span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">root</span>, <span style="color: #00d3d0;">dirs</span>, <span style="color: #00d3d0;">files</span> <span style="color: #b6a0ff;">in</span> os.<span style="color: #00bcff; font-style: italic;">walk</span>(project_id):
+    <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">f</span> <span style="color: #b6a0ff;">in</span> files:
+        <span style="color: #00d3d0;">_</span>, <span style="color: #00d3d0;">summary</span> <span style="color: #b6a0ff;">=</span>
+ <span style="color: #00bcff;">summarize_csv</span>(os.<span style="color: #00bcff; font-style: italic;">path</span>.<span style="color: #00bcff; font-style: italic;">join</span>(root, f))
+        <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">key</span> <span style="color: #b6a0ff;">in</span> summary.<span style="color: #00bcff; font-style: italic;">keys</span>():
+            <span style="color: #00d3d0;">matching</span> <span style="color: #b6a0ff;">=</span> tuitus_db.<span style="color: #00bcff; font-style: italic;">nodes</span>.<span style="color: #00bcff; font-style: italic;">match</span>(<span style="color: #79a8ff;">"Data"</span>, <span style="color: #ff9077;">name</span><span style="color: #b6a0ff;">=</span>key)
+            <span style="color: #b6a0ff;">if</span> <span style="color: #f78fe7;">len</span>(matching) <span style="color: #b6a0ff;">==</span> <span style="color: #00bcff;">0</span>:
+                <span style="color: #00d3d0;">column_node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Node</span>(<span style="color: #79a8ff;">"Data"</span>, <span style="color: #ff9077;">name</span><span style="color: #b6a0ff;">=</span>key)
+                tuitus_db.<span style="color: #00bcff; font-style: italic;">create</span>(column_node)
+            <span style="color: #b6a0ff;">else</span>:
+                <span style="color: #00d3d0;">column_node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #f78fe7;">list</span>(matching)[<span style="color: #00bcff;">0</span>]
+            <span style="color: #b6a0ff;">if</span> <span style="color: #f78fe7;">len</span>(tuitus_db.<span style="color: #00bcff; font-style: italic;">relationships</span>.<span style="color: #00bcff; font-style: italic;">match</span>(<span style="color: #ff9077;">nodes</span><span style="color: #b6a0ff;">=</span>(project_node, column_node), <span style="color: #ff9077;">r_type</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"RECORDS"</span>)) <span style="color: #b6a0ff;">==</span> <span style="color: #00bcff;">0</span>:
+                <span style="color: #00d3d0;">col_rel</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Relationship</span>(project_node, <span style="color: #79a8ff;">"RECORDS"</span>, column_node)
+                tuitus_db.<span style="color: #00bcff; font-style: italic;">create</span>(col_rel)
+
+
+</pre>
+</div>
+
+<p>
+I can now combine all these steps into a single function that adds the nodes for a given project with files stored in a directory.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python"><span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">create_project_graph</span>(<span style="color: #00d3d0;">project_id</span>, <span style="color: #00d3d0;">project_path</span>, <span style="color: #00d3d0;">pi</span>, <span style="color: #00d3d0;">graph_db</span>):
+    <span style="color: #00d3d0;">project_matching</span> <span style="color: #b6a0ff;">=</span> graph_db.<span style="color: #00bcff; font-style: italic;">nodes</span>.<span style="color: #00bcff; font-style: italic;">match</span>(<span style="color: #79a8ff;">"Project"</span>, <span style="color: #ff9077;">name</span><span style="color: #b6a0ff;">=</span>project_id)
+    <span style="color: #b6a0ff;">if</span> <span style="color: #f78fe7;">len</span>(project_matching) <span style="color: #b6a0ff;">==</span> <span style="color: #00bcff;">0</span>:
+        <span style="color: #00d3d0;">project_node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Node</span>(<span style="color: #79a8ff;">"Project"</span>, <span style="color: #ff9077;">name</span><span style="color: #b6a0ff;">=</span>project_id)
+        graph_db.<span style="color: #00bcff; font-style: italic;">create</span>(project_node)
+    <span style="color: #b6a0ff;">else</span>:
+        <span style="color: #00d3d0;">project_node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #f78fe7;">list</span>(project_matching)[<span style="color: #00bcff;">0</span>]
+    <span style="color: #00d3d0;">pi_matching</span> <span style="color: #b6a0ff;">=</span> graph_db.<span style="color: #00bcff; font-style: italic;">nodes</span>.<span style="color: #00bcff; font-style: italic;">match</span>(<span style="color: #79a8ff;">"Author"</span>, <span style="color: #ff9077;">name</span><span style="color: #b6a0ff;">=</span>pi)
+    <span style="color: #b6a0ff;">if</span> <span style="color: #f78fe7;">len</span>(pi_matching) <span style="color: #b6a0ff;">==</span> <span style="color: #00bcff;">0</span>:
+        <span style="color: #00d3d0;">pi_node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Node</span>(<span style="color: #79a8ff;">"Author"</span>, <span style="color: #ff9077;">name</span><span style="color: #b6a0ff;">=</span>pi)
+        graph_db.<span style="color: #00bcff; font-style: italic;">create</span>(pi_node)
+    <span style="color: #b6a0ff;">else</span>:
+        <span style="color: #00d3d0;">pi_node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #f78fe7;">list</span>(pi_matching)[<span style="color: #00bcff;">0</span>]
+    <span style="color: #00d3d0;">pi_rel</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Relationship</span>(pi_node, <span style="color: #79a8ff;">"SUPERVISES"</span>, project_node)
+    graph_db.<span style="color: #00bcff; font-style: italic;">create</span>(pi_rel)
+
+    <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">root</span>, <span style="color: #00d3d0;">dirs</span>, <span style="color: #00d3d0;">files</span> <span style="color: #b6a0ff;">in</span> os.<span style="color: #00bcff; font-style: italic;">walk</span>(project_id):
+        <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">f</span> <span style="color: #b6a0ff;">in</span> files:
+            <span style="color: #00d3d0;">_</span>, <span style="color: #00d3d0;">summary</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">summarize_csv</span>(os.<span style="color: #00bcff; font-style: italic;">path</span>.<span style="color: #00bcff; font-style: italic;">join</span>(root, f))
+            <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">key</span> <span style="color: #b6a0ff;">in</span> summary.<span style="color: #00bcff; font-style: italic;">keys</span>():
+                <span style="color: #00d3d0;">matching</span> <span style="color: #b6a0ff;">=</span> graph_db.<span style="color: #00bcff; font-style: italic;">nodes</span>.<span style="color: #00bcff; font-style: italic;">match</span>(<span style="color: #79a8ff;">"Data"</span>, <span style="color: #ff9077;">name</span><span style="color: #b6a0ff;">=</span>key)
+                <span style="color: #b6a0ff;">if</span> <span style="color: #f78fe7;">len</span>(matching) <span style="color: #b6a0ff;">==</span> <span style="color: #00bcff;">0</span>:
+                    <span style="color: #00d3d0;">column_node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Node</span>(<span style="color: #79a8ff;">"Data"</span>, <span style="color: #ff9077;">name</span><span style="color: #b6a0ff;">=</span>key)
+                    graph_db.<span style="color: #00bcff; font-style: italic;">create</span>(column_node)
+                <span style="color: #b6a0ff;">else</span>:
+                    <span style="color: #00d3d0;">column_node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #f78fe7;">list</span>(matching)[<span style="color: #00bcff;">0</span>]
+                <span style="color: #b6a0ff;">if</span> <span style="color: #f78fe7;">len</span>(graph_db.<span style="color: #00bcff; font-style: italic;">relationships</span>.<span style="color: #00bcff; font-style: italic;">match</span>(<span style="color: #ff9077;">nodes</span><span style="color: #b6a0ff;">=</span>(project_node, column_node), <span style="color: #ff9077;">r_type</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"RECORDS"</span>)) <span style="color: #b6a0ff;">==</span> <span style="color: #00bcff;">0</span>:
+                    <span style="color: #00d3d0;">col_rel</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Relationship</span>(project_node, <span style="color: #79a8ff;">"RECORDS"</span>, column_node)
+                    graph_db.<span style="color: #00bcff; font-style: italic;">create</span>(col_rel)
+
+    <span style="color: #b6a0ff;">return</span>
+
+
+<span style="color: #00bcff;">create_project_graph</span>(<span style="color: #79a8ff;">"PRJ-3484"</span>, <span style="color: #79a8ff;">"./"</span>, <span style="color: #79a8ff;">"mmanzari"</span>, tuitus_db)
+<span style="color: #00bcff;">create_project_graph</span>(<span style="color: #79a8ff;">"PRJ-2137"</span>, <span style="color: #79a8ff;">"./"</span>, <span style="color: #79a8ff;">"mmanzari"</span>, tuitus_db)
+</pre>
+</div>
+
+<p>
+This generates a graph db that can now answer the query mentioned above.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-jupyter-python">tuitus_db.<span style="color: #00bcff; font-style: italic;">run</span>(<span style="color: #79a8ff;">"MATCH (p:PROJECT)-[:RECORDS]-&gt;(d:Data {name: 'cycle'}) RETURN p, d"</span>)
+</pre>
+</div>
+
+
+
+<figure id="org7cdb28a">
+<img src="../assets/2023-01-30_16-18-10_screenshot.png" alt="2023-01-30_16-18-10_screenshot.png">
+
+</figure>
 </div>
 </div>
 </div>
