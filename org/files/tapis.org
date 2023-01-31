@@ -708,7 +708,7 @@ PRJ-3484
 
 10 directories, 54 files
 #+end_example
-* COMMENT Generate summary and metadata info for the files
+* Generate summary and metadata info for the files
 Next step in building a semantic search engine would be to generate the metadata info/summary for the files inside any project. This can be done using the =pandas= library.
 
 #+begin_src jupyter-python
@@ -727,7 +727,11 @@ def summarize_csv(filepath):
     it also adds an "increment_<column_name>" key to the summary that
     records the increments used in the first column of the CSV.
     """
-    df = pd.read_csv(filepath)
+    extension = os.path.splitext(filepath)[1].lower()
+    if extension == ".csv":
+        df = pd.read_csv(filepath)
+    elif extension == ".txt":
+        df = pd.read_csv(filepath, engine="python", sep=None)
     df.columns = df.columns.str.strip().str.replace("\s+", " ", regex=True).str.lower().str.replace(" ", "_")
     summary = df.describe().to_dict()
     increment = df[df.columns[0]].iloc[2] - df[df.columns[0]].iloc[1]
@@ -735,12 +739,13 @@ def summarize_csv(filepath):
     return df, summary
 
 
-df, summary = summarize_csv("PRJ-3484/CDSS tests with Sig_v = 100 kPa, Dr = 66.7%, Alpha = 0/eo_0_600_sigv_100_CSR_0_170_Tau_0_.csv")
+# df, summary = summarize_csv("PRJ-3484/CDSS tests with Sig_v = 100 kPa, Dr = 66.7%, Alpha = 0/eo_0_600_sigv_100_CSR_0_170_Tau_0_.csv")
+df, summary = summarize_csv("PRJ-1783/Cyclic Stress-Controlled Triaxial Tests/eo_0_515_po_100/eo_0_515_po_100_csr_0_3.txt")
 pprint(summary.keys())
 #+end_src
 
 #+RESULTS:
-: dict_keys(['cycle', 'shear_strain', 'shear_stress', 'normal_strain', 'normal_stress', 'pressure_ratio', 'increment_cycle'])
+: dict_keys(['time_min', 'eps_a', 'eps_v', 'sigmap_3_kpa', 'sigma_3_kpa', 'sigma_d_kpa', 'increment_time_min'])
 * Store information in a neo4j database
 As starting step for creating the graph database, we'll create a structure that would enable the queries of the type
 
