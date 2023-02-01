@@ -504,7 +504,7 @@ response_json = response.json()
 
 #+RESULTS:
 
-+ The response is a humongous \sym 1300 lines json object which contains basically all the information about the project that is present on the website. The fields of major importance right now would be ~["eventsList"]~. This corresponds to the different experiment setups.
++ The response is a humongous \(\sym\) 1300 lines json object which contains basically all the information about the project that is present on the website. The fields of major importance right now would be ~["eventsList"]~. This corresponds to the different experiment setups.
 + For every element in ~"eventsList"~, ~"fileObjs"~ is the list of files for that experiment, ~["value"]["title"]~ is the title string of the experiment.
 
 #+begin_src jupyter-python
@@ -732,6 +732,8 @@ def summarize_csv(filepath):
         df = pd.read_csv(filepath)
     elif extension == ".txt":
         df = pd.read_csv(filepath, engine="python", sep=None)
+    else:
+        return None, dict()
     df.columns = df.columns.str.strip().str.replace("\s+", " ", regex=True).str.lower().str.replace(" ", "_")
     summary = df.describe().to_dict()
     increment = df[df.columns[0]].iloc[2] - df[df.columns[0]].iloc[1]
@@ -815,7 +817,7 @@ for root, dirs, files in os.walk(project_id):
 I can now combine all these steps into a single function that adds the nodes for a given project with files stored in a directory.
 
 #+begin_src jupyter-python
-def create_project_graph(project_id, project_path, pi, graph_db):
+def create_project_data_graph(project_id, project_path, pi, graph_db):
     project_matching = graph_db.nodes.match("Project", name=project_id)
     if len(project_matching) == 0:
         project_node = Node("Project", name=project_id)
@@ -848,8 +850,8 @@ def create_project_graph(project_id, project_path, pi, graph_db):
     return
 
 
-create_project_graph("PRJ-3484", "./", "mmanzari", tuitus_db)
-create_project_graph("PRJ-2137", "./", "mmanzari", tuitus_db)
+# create_project_data_graph("PRJ-3484", "./", "mmanzari", tuitus_db)
+# create_project_data_graph("PRJ-2137", "./", "mmanzari", tuitus_db)
 #+end_src
 
 #+RESULTS:
@@ -863,3 +865,148 @@ tuitus_db.run("MATCH (p:PROJECT)-[:RECORDS]->(d:Data {name: 'cycle'}) RETURN p, 
 
 #+DOWNLOADED: screenshot @ 2023-01-30 16:18:10
 [[file:../assets/2023-01-30_16-18-10_screenshot.png]]
+* Extract experiment and model config information from the project JSON
+
+#+begin_src jupyter-python
+import requests
+from pprint import pprint
+
+projectId = "PRJ-3484"
+url = f"https://designsafe-ci.org/api/projects/publication/{projectId}"
+
+payload = ""
+headers = {}
+
+response = requests.request("GET", url, data=payload, headers=headers)
+response_json = response.json()
+#+end_src
+
+#+RESULTS:
+
++ The response JSON has 3 top-level lists that are of interest - =eventsList=, =modelConfigs=, =experimentsList=. =experimentsList= is a list of all the experiments in the project. Each element of the list contains a =uuid= field that is used to link an experiment with a model config or an event. Furthermore, it also has =["value"]["title"]= which gives the name of the experiment.
++ Now, each element in =eventsList= and =modelConfigs= contains a field =["value"]["experiments"]= which is a list of all experiments that the event or the model config is a part of. All of this can be mapped to a project.
++ Each element in =eventsList= also has a =["value"]["modelConfigs"]= which is a list of uuids of models that an event is a part of.
+
+With this information, I can now update the ~create_project_graph~ function to include everything.
+#+begin_src jupyter-python
+import os
+from py2neo import Graph, Node, Relationship
+
+def _create_or_return_node(node_type, node_key, graphdb, **node_props):
+    matching = graphdb.nodes.match(node_type, **node_key)
+    if len(matching) == 0:
+        node = Node(node_type, **node_props)
+        graphdb.create(node)
+    else:
+        node = list(matching)[0]
+    return node
+
+def create_project_graph(project_info, project_path, graphdb):
+    project_id = project_info.get("project_id", None)
+    if project_id is None:
+        project_id = project_info.get("projectId", None)
+    if project_id is None:
+        raise KeyError("project_id or projectId not found in project info.")
+
+    project_props = {"name": project_id}
+    project_node = _create_or_return_node(
+        "Project", {"name": project_id}, graphdb, **project_props
+    )
+
+    pi = project_info["project"]["value"]["pi"]
+    pi_props = {"name": pi}
+    pi_node = _create_or_return_node(
+        "Author", {"name": pi}, graphdb, **pi_props
+    )
+    pi_project_rel = Relationship(pi_node, "SUPERVISES", project_node)
+    graphdb.create(pi_project_rel)
+
+    for exp in project_info["experimentsList"]:
+        experiment_props = {
+            "uuid": exp["uuid"],
+            "title": exp["value"]["title"],
+        }
+        exp_node = _create_or_return_node(
+            "Experiment", {"uuid": exp["uuid"]}, graphdb, **experiment_props
+        )
+        exp_project_rel = Relationship(project_node, "HAS_EXPERIMENT", exp_node)
+        graphdb.create(exp_project_rel)
+
+    for model in project_info["modelConfigs"]:
+        model_props = {
+            "uuid": model["uuid"],
+            "title": model["value"]["title"],
+        }
+        model_node = _create_or_return_node(
+            "Model", {"uuid": model["uuid"]}, graphdb, **model_props
+        )
+        model_exps = model["value"]["experiments"]
+        for exp_uuid in model_exps:
+            exp_matching = graphdb.nodes.match("Experiment", uuid=exp_uuid)
+            if len(exp_matching) > 0:
+                exp_node = list(exp_matching)[0]
+                model_experiment_rel = Relationship(exp_node, "HAS_MODEL", model_node)
+                graphdb.create(model_experiment_rel)
+
+    for event in project_info["eventsList"]:
+        event_props = {
+            "title": event["value"]["title"],
+        }
+        event_node = _create_or_return_node(
+
+            "Event", {"title": event_props["title"]}, graphdb, **event_props
+        )
+        event_exps = event["value"]["experiments"]
+        for exp_uuid in event_exps:
+            exp_matching = graphdb.nodes.match("Experiment", uuid=exp_uuid)
+            if len(exp_matching) > 0:
+                exp_node = list(exp_matching)[0]
+                event_experiment_rel = Relationship(exp_node, "HAS_EVENT", event_node)
+                graphdb.create(event_experiment_rel)
+
+        event_models = event["value"]["modelConfigs"]
+        for model_uuid in event_models:
+            model_matching = graphdb.nodes.match("Model", uuid=model_uuid)
+            if len(model_matching) > 0:
+                model_node = list(model_matching)[0]
+                event_model_rel = Relationship(model_node, "HAS_EVENT", event_node)
+                graphdb.create(event_model_rel)
+
+        for root, dirs, files in os.walk(
+                os.path.join(project_path, project_id, event_props["title"])
+        ):
+            for f in files:
+                _, summary = summarize_csv(os.path.join(root, f))
+                for key in summary.keys():
+                    col_props = {"name": key}
+                    column_node = _create_or_return_node(
+                        "Data", {"name": key}, graphdb, **col_props
+                    )
+                    if len(graphdb.relationships.match(nodes=(project_node, column_node), r_type="RECORDS")) == 0:
+                        col_proj_rel = Relationship(project_node, "RECORDS", column_node)
+                        graphdb.create(col_proj_rel)
+                    if len(graphdb.relationships.match(nodes=(event_node, column_node), r_type="RECORDS")) == 0:
+                        col_event_rel = Relationship(event_node, "RECORDS", column_node)
+                        graphdb.create(col_event_rel)
+    return
+
+create_project_graph(response_json, "./", tuitus_db)
+#+end_src
+
+#+RESULTS:
+
+With this, we now have a much dense graph with relationships that can be queried.
+
+#+DOWNLOADED: screenshot @ 2023-02-01 13:26:07
+#+attr_html: :width 60%
+[[file:../assets/Extract_experiment_and_model_config_information_from_the_project_JSON/2023-02-01_13-26-07_screenshot.png]]
+
+Example query:
+
+#+begin_quote
+List all the projects, experiments, models and events that record "axial_stress".
+#+end_quote
+
+#+DOWNLOADED: screenshot @ 2023-02-01 13:34:40
+#+attr_html: :width 60%
+[[file:../assets/Extract_experiment_and_model_config_information_from_the_project_JSON/2023-02-01_13-34-40_screenshot.png]]
