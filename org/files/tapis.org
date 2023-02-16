@@ -708,7 +708,8 @@ PRJ-3484
 
 10 directories, 54 files
 #+end_example
-* Generate summary and metadata info for the files
+* [DEPRECATED] Generate summary and metadata info for the files
+UPDATE: See section below for updated function for summary
 Next step in building a semantic search engine would be to generate the metadata info/summary for the files inside any project. This can be done using the =pandas= library.
 
 #+begin_src jupyter-python
@@ -977,8 +978,10 @@ def create_project_graph(project_info, project_path, graphdb):
         ):
             for f in files:
                 _, summary = summarize_csv(os.path.join(root, f))
-                for key in summary.keys():
-                    col_props = {"name": key}
+                for key, props in summary.items():
+                    if not isinstance(props, dict):
+                        props = {key: props}
+                    col_props = {"name": key, **props}
                     column_node = _create_or_return_node(
                         "Data", {"name": key}, graphdb, **col_props
                     )
@@ -1010,3 +1013,71 @@ List all the projects, experiments, models and events that record "axial_stress"
 #+DOWNLOADED: screenshot @ 2023-02-01 13:34:40
 #+attr_html: :width 60%
 [[file:../assets/Extract_experiment_and_model_config_information_from_the_project_JSON/2023-02-01_13-34-40_screenshot.png]]
+* Update ~summarize_csv~ to include categorical variables and round decimals
+The current ~summarize_csv~ doesn't include categorical columns in the summary. This means that if there were a column without numeric values, it would not be present in the summary. Columns can be included by passing the ~include="all"~ parameter to the ~.describe()~ function. Though, this introduces another issue as now there are multiple NaN values in the summary depending on the type of column. This information is unnecessary for the database node properties and should be removed. It also rounds off all the summary statistics to upto 5 decimal places so that the values are tractable in the database search. The new function takes care of all of this.
+
+#+begin_src jupyter-python
+import os
+import pandas as pd
+from pprint import pprint
+
+def summarize_csv(filepath):
+    """
+    Summarize a CSV
+
+    This function generates a dictionary that contains the summary
+    of the CSV. It also performs some preprocessing on the column
+    names by stripping off any whitespace before and after the column
+    name and converting the column name to a snake-case. Furthermore,
+    it also adds an "increment_<column_name>" key to the summary that
+    records the increments used in the first column of the CSV.
+    """
+    extension = os.path.splitext(filepath)[1].lower()
+    if extension == ".csv":
+        df = pd.read_csv(filepath)
+    elif extension == ".txt":
+        df = pd.read_csv(filepath, engine="python", sep=None)
+    else:
+        return None, dict()
+    df.columns = df.columns.str.strip().str.replace("\s+", " ", regex=True).str.lower().str.replace(" ", "_")
+    summary = df.describe(include="all").round(5).to_dict()
+    summary = {
+        colname: colsummary for colname, colsummary in summary.items() for k, v in colsummary.items() if not pd.isna(v)
+    }
+    for colname, colsummary in summary.items():
+        for k, v in colsummary.items():
+            try:
+                colsummary[k] = v.item()
+            except AttributeError:
+                pass
+    increment = (df[df.columns[0]].iloc[2] - df[df.columns[0]].iloc[1]).round(5).item()
+    summary[f"increment_{df.columns[0]}"] = increment
+    return df, summary
+
+
+# df, summary = summarize_csv("PRJ-3484/CDSS tests with Sig_v = 100 kPa, Dr = 66.7%, Alpha = 0/eo_0_600_sigv_100_CSR_0_170_Tau_0_.csv")
+df, summary = summarize_csv("PRJ-1783/Cyclic Stress-Controlled Triaxial Tests/eo_0_515_po_100/eo_0_515_po_100_csr_0_3.txt")
+#+end_src
+
+* Querying database using =py2neo=
+With the new properties related to the summaries in the nodes, we can now query them to get information filtered on the values from the summary. For example, there are a total of 3 =Data= nodes in the graph with means 20.5, 30.5, 38.06454 respectively. We can now query for all the Nodes which have a mean higher than 30.
+
+#+begin_src jupyter-python
+tuitus_db.run("MATCH (d:Data {name: 'normal_stress'}) RETURN d")
+#+end_src
+
+#+RESULTS:
+:  d
+: --------------------------------------------------------------------------------------------------------------------------------------------------------------
+:  (_5:Data {`25%`: 24.30745, `50%`: 33.5288, `75%`: 50.4053, count: 1407.0, max: 99.5891, mean: 38.06454, min: 1.99448, name: 'normal_stress', std: 19.35634})
+:  (_23:Data {mean: 20.5, name: 'normal_stress'})
+:  (_24:Data {mean: 10.5, name: 'normal_stress'})
+
+#+begin_src jupyter-python
+tuitus_db.run("MATCH (d:Data {name: 'normal_stress'}) WHERE d.mean > 30 RETURN d")
+#+end_src
+
+#+RESULTS:
+:  d                                                                                                                                                            
+: --------------------------------------------------------------------------------------------------------------------------------------------------------------
+:  (_5:Data {`25%`: 24.30745, `50%`: 33.5288, `75%`: 50.4053, count: 1407.0, max: 99.5891, mean: 38.06454, min: 1.99448, name: 'normal_stress', std: 19.35634})
