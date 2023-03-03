@@ -12,8 +12,10 @@ tqdm = "*"
 python-lsp-server = {extras = ["all"], version = "*"}
 pandas = "*"
 py2neo = "*"
+isort = "*"
 
 [dev-packages]
+black = "*"
 
 [requires]
 python_version = "3.9"

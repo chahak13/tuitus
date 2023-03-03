@@ -1,38 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2023-02-16 Thu 16:24 -->
+<!-- 2023-03-03 Fri 14:50 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Tapis</title>
 <meta name="author" content="Chahak Mehta" />
 <meta name="generator" content="Org Mode" />
 <link rel="stylesheet" href="../style.css" type="text/css"/>
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-        displayAlign: "center",
-        displayIndent: "0em",
-
-        "HTML-CSS": { scale: 100,
-                        linebreaks: { automatic: "false" },
-                        webFont: "TeX"
-                       },
-        SVG: {scale: 100,
-              linebreaks: { automatic: "false" },
-              font: "TeX"},
-        NativeMML: {scale: 100},
-        TeX: { equationNumbers: {autoNumber: "AMS"},
-               MultLineWidth: "85%",
-               TagSide: "right",
-               TagIndent: ".8em"
-             }
-});
+<script>
+  window.MathJax = {
+    tex: {
+      ams: {
+        multlineWidth: '85%'
+      },
+      tags: 'ams',
+      tagSide: 'right',
+      tagIndent: '.8em'
+    },
+    chtml: {
+      scale: 1.0,
+      displayAlign: 'center',
+      displayIndent: '0em'
+    },
+    svg: {
+      scale: 1.0,
+      displayAlign: 'center',
+      displayIndent: '0em'
+    },
+    output: {
+      font: 'mathjax-modern',
+      displayOverflow: 'overflow'
+    }
+  };
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
+
+<script
+  id="MathJax-script"
+  async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
 </head>
 <body>
 <div id="preamble" class="status">
-<div id="updated">Updated: 2023-02-16 Thu 16:23</div>
+<div id="updated">Updated: 2023-03-03 Fri 14:50</div>
 <nav>
 <a href="/tuitus/">Home</a>
 <a href="/tuitus/files/sitemap.html">Posts</a>
@@ -66,6 +77,7 @@
 <li><a href="#orga551dce">8. Extract experiment and model config information from the project JSON</a></li>
 <li><a href="#orgb99b2ed">9. Update <code>summarize_csv</code> to include categorical variables and round decimals</a></li>
 <li><a href="#org0522026">10. Querying database using <kbd>py2neo</kbd></a></li>
+<li><a href="#org82b3beb">11. Modify project creation to support file path from response JSON</a></li>
 </ul>
 </div>
 </nav>
@@ -547,7 +559,7 @@ To register a pod, we use the <code>pods.create_pod()</code> method.
 </pre>
 </div>
 
-<pre class="example" id="orgb0601e1">
+<pre class="example" id="org1228bb5">
 
   command: None
   creation_ts: 2023-01-06T15:34:20.551402
@@ -593,7 +605,7 @@ The details and status of this <kbd>REQUESTED</kbd> pod can be accessed using th
 </pre>
 </div>
 
-<pre class="example" id="orgff7fa3f">
+<pre class="example" id="org1eb37ab">
 
 command: None
 creation_ts: 2023-01-06T15:34:20.551402
@@ -639,7 +651,7 @@ The logs can be retrieved using the <code>get_pod_logs()</code> method.
 </pre>
 </div>
 
-<pre class="example" id="orgcb92ff1">
+<pre class="example" id="org978ebba">
 
 logs: 2023-01-06 16:06:39.132+0000 INFO  Starting...
 2023-01-06 16:06:40.347+0000 INFO  This instance is ServerId{e6102ec8} (e6102ec8-c9a0-4650-b0df-b523b7475f5a)
@@ -666,7 +678,7 @@ List of all pods - <code>get_pods()</code>
 </pre>
 </div>
 
-<pre class="example" id="org853328c">
+<pre class="example" id="org2d60449">
 [
 command: None
 creation_ts: 2023-01-06T15:34:20.551402
@@ -796,7 +808,7 @@ Using the <code>systemId</code> as <kbd>designsafe.storage.default</kbd>, fetch 
 </pre>
 </div>
 
-<pre class="example" id="orga5ad99f">
+<pre class="example" id="org41db3ee">
   ---------------------------------------------------------------------------
   NotFoundError                             Traceback (most recent call last)
   Cell In[6], line 1
@@ -873,7 +885,7 @@ Using the <code>requests</code> module, we can create a request to <kbd>https://
 </pre>
 </div>
 
-<pre class="example" id="org0e611ee">
+<pre class="example" id="org73a3eb6">
 {'listing': [{'created': '2023-01-09T21:13:07.982682',
               'pi': 'Zhang, Wenyang',
               'project': {'value': {'keywords': 'Physics-based ground motion '
@@ -949,7 +961,7 @@ For a given <kbd>projectId</kbd>, we need to get all the result files. The infor
 </pre>
 </div>
 
-<pre class="example" id="org306a90f">
+<pre class="example" id="org193852f">
 {'files': [{'name': 'eo_0_601_sigv_100_CSR_0_150_Tau_40_.csv',
             'path': '/eo_0_601_sigv_100_CSR_0_150_Tau_40_.csv',
             'system': 'project-3122606422211489300-242ac118-0001-012',
@@ -1089,7 +1101,7 @@ This downloads the project files and stores the files in the following structure
 </pre>
 </div>
 
-<pre class="example" id="org1228bb5">
+<pre class="example" id="org9e2332c">
 PRJ-3484
 ├── CDSS tests with Sig_v = 100 kPa, Dr = 66.7%, Alpha = 0
 │   ├── eo_0_600_sigv_100_CSR_0_170_Tau_0_.csv
@@ -1346,7 +1358,7 @@ This generates a graph db that can now answer the query mentioned above.
 
 
 
-<figure id="org5819fac">
+<figure id="org46df28f">
 <img src="../assets/2023-01-30_16-18-10_screenshot.png" alt="2023-01-30_16-18-10_screenshot.png">
 
 </figure>
@@ -1385,7 +1397,7 @@ With this information, I can now update the <code>create_project_graph</code> fu
 <span style="color: #b6a0ff;">from</span> py2neo <span style="color: #b6a0ff;">import</span> <span style="color: #6ae4b9;">Graph</span>, <span style="color: #6ae4b9;">Node</span>, <span style="color: #6ae4b9;">Relationship</span>
 
 <span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">_create_or_return_node</span>(<span style="color: #00d3d0;">node_type</span>, <span style="color: #00d3d0;">node_key</span>, <span style="color: #00d3d0;">graphdb</span>, <span style="color: #b6a0ff;">**</span><span style="color: #00d3d0;">node_props</span>):
-    <span style="color: #00d3d0;">matching</span> <span style="color: #b6a0ff;">=</span> graphdb.<span style="color: #00bcff; font-style: italic;">nodes</span>.<span style="color: #00bcff; font-style: italic;">match</span>(node_type, <span style="color: #b6a0ff;">**</span>node_key)
+    <span style="color: #00d3d0;">matching</span> <span style="color: #b6a0ff;">=</span> graphdb.<span style="color: #00bcff; font-style: italic;">nodes</span>.<span style="color: #00bcff; font-style: italic;">match</span>(node_type, <span style="color: #b6a0ff;">**</span>node_props)
     <span style="color: #b6a0ff;">if</span> <span style="color: #f78fe7;">len</span>(matching) <span style="color: #b6a0ff;">==</span> <span style="color: #00bcff;">0</span>:
         <span style="color: #00d3d0;">node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Node</span>(node_type, <span style="color: #b6a0ff;">**</span>node_props)
         graphdb.<span style="color: #00bcff; font-style: italic;">create</span>(node)
@@ -1468,7 +1480,12 @@ With this information, I can now update the <code>create_project_graph</code> fu
                 os.<span style="color: #00bcff; font-style: italic;">path</span>.<span style="color: #00bcff; font-style: italic;">join</span>(project_path, project_id, event_props[<span style="color: #79a8ff;">"title"</span>])
         ):
             <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">f</span> <span style="color: #b6a0ff;">in</span> files:
-                <span style="color: #00d3d0;">_</span>, <span style="color: #00d3d0;">summary</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">summarize_csv</span>(os.<span style="color: #00bcff; font-style: italic;">path</span>.<span style="color: #00bcff; font-style: italic;">join</span>(root, f))
+                <span style="color: #00d3d0;">filepath</span> <span style="color: #b6a0ff;">=</span> os.<span style="color: #00bcff; font-style: italic;">path</span>.<span style="color: #00bcff; font-style: italic;">join</span>(root, f)
+                <span style="color: #00d3d0;">file_node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">_create_or_return_node</span>(<span style="color: #79a8ff;">"File"</span>, {<span style="color: #79a8ff;">"filepath"</span>: filepath}, graphdb, <span style="color: #b6a0ff;">**</span>{<span style="color: #79a8ff;">"filepath"</span>: filepath})
+                <span style="color: #b6a0ff;">if</span> <span style="color: #f78fe7;">len</span>(graphdb.<span style="color: #00bcff; font-style: italic;">relationships</span>.<span style="color: #00bcff; font-style: italic;">match</span>(<span style="color: #ff9077;">nodes</span><span style="color: #b6a0ff;">=</span>(event_node, file_node), <span style="color: #ff9077;">r_type</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"HAS_FILE"</span>)) <span style="color: #b6a0ff;">==</span> <span style="color: #00bcff;">0</span>:
+                    <span style="color: #00d3d0;">event_file_rel</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Relationship</span>(event_node, <span style="color: #79a8ff;">"HAS_FILE"</span>, file_node)
+                    graphdb.<span style="color: #00bcff; font-style: italic;">create</span>(event_file_rel)
+                <span style="color: #00d3d0;">_</span>, <span style="color: #00d3d0;">summary</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">summarize_csv</span>(filepath)
                 <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">key</span>, <span style="color: #00d3d0;">props</span> <span style="color: #b6a0ff;">in</span> summary.<span style="color: #00bcff; font-style: italic;">items</span>():
                     <span style="color: #b6a0ff;">if</span> <span style="color: #b6a0ff;">not</span> <span style="color: #f78fe7;">isinstance</span>(props, dict):
                         <span style="color: #00d3d0;">props</span> <span style="color: #b6a0ff;">=</span> {key: props}
@@ -1482,6 +1499,9 @@ With this information, I can now update the <code>create_project_graph</code> fu
                     <span style="color: #b6a0ff;">if</span> <span style="color: #f78fe7;">len</span>(graphdb.<span style="color: #00bcff; font-style: italic;">relationships</span>.<span style="color: #00bcff; font-style: italic;">match</span>(<span style="color: #ff9077;">nodes</span><span style="color: #b6a0ff;">=</span>(event_node, column_node), <span style="color: #ff9077;">r_type</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"RECORDS"</span>)) <span style="color: #b6a0ff;">==</span> <span style="color: #00bcff;">0</span>:
                         <span style="color: #00d3d0;">col_event_rel</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Relationship</span>(event_node, <span style="color: #79a8ff;">"RECORDS"</span>, column_node)
                         graphdb.<span style="color: #00bcff; font-style: italic;">create</span>(col_event_rel)
+                    <span style="color: #b6a0ff;">if</span> <span style="color: #f78fe7;">len</span>(graphdb.<span style="color: #00bcff; font-style: italic;">relationships</span>.<span style="color: #00bcff; font-style: italic;">match</span>(<span style="color: #ff9077;">nodes</span><span style="color: #b6a0ff;">=</span>(file_node, column_node), <span style="color: #ff9077;">r_type</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"RECORDS"</span>)) <span style="color: #b6a0ff;">==</span> <span style="color: #00bcff;">0</span>:
+                        <span style="color: #00d3d0;">col_file_rel</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Relationship</span>(file_node, <span style="color: #79a8ff;">"RECORDS"</span>, column_node)
+                        graphdb.<span style="color: #00bcff; font-style: italic;">create</span>(col_file_rel)
     <span style="color: #b6a0ff;">return</span>
 
 <span style="color: #00bcff;">create_project_graph</span>(response_json, <span style="color: #79a8ff;">"./"</span>, tuitus_db)
@@ -1493,7 +1513,7 @@ With this, we now have a much dense graph with relationships that can be queried
 </p>
 
 
-<figure id="orgae216dd">
+<figure id="orgb639f2d">
 <img src="../assets/Extract_experiment_and_model_config_information_from_the_project_JSON/2023-02-01_13-26-07_screenshot.png" alt="2023-02-01_13-26-07_screenshot.png" width="60%">
 
 </figure>
@@ -1509,7 +1529,7 @@ List all the projects, experiments, models and events that record &ldquo;axial<s
 </blockquote>
 
 
-<figure id="orgd1ba14c">
+<figure id="orga421fd2">
 <img src="../assets/Extract_experiment_and_model_config_information_from_the_project_JSON/2023-02-01_13-34-40_screenshot.png" alt="2023-02-01_13-34-40_screenshot.png" width="60%">
 
 </figure>
@@ -1545,8 +1565,8 @@ The current <code>summarize_csv</code> doesn&rsquo;t include categorical columns
         <span style="color: #00d3d0;">df</span> <span style="color: #b6a0ff;">=</span> pd.<span style="color: #00bcff; font-style: italic;">read_csv</span>(filepath, <span style="color: #ff9077;">engine</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"python"</span>, <span style="color: #ff9077;">sep</span><span style="color: #b6a0ff;">=</span><span style="color: #f78fe7;">None</span>)
     <span style="color: #b6a0ff;">else</span>:
         <span style="color: #b6a0ff;">return</span> <span style="color: #f78fe7;">None</span>, <span style="color: #f78fe7;">dict</span>()
-    df.<span style="color: #00d3d0; font-style: italic;">columns</span> <span style="color: #b6a0ff;">=</span> df.<span style="color: #00bcff; font-style: italic;">columns</span>.<span style="color: #00bcff; font-style: italic;">str</span>.<span style="color: #00bcff; font-style: italic;">strip</span>().<span style="color: #00bcff; font-style: italic;">str</span>.<span style="color: #00bcff; font-style: italic;">replace</span>(<span style="color: #79a8ff;">"\s+"</span>, <span style="color: #79a8ff;">" "</span>, <span style="color: #ff9077;">regex</span><span style="color: #b6a0ff;">=</span><span style="color: #f78fe7;">True</span>).<span style="color: #00bcff; font-style: italic;">str</span>.<span style="color: #00bcff; font-style: italic;">lower</span>().<span style="color: #00bcff; font-style: italic;">str</span>.<span style="color: #00bcff; font-style: italic;">replace</span>(<span style="color: #79a8ff;">" "</span>, <span style="color: #79a8ff;">"_"</span>)
-    <span style="color: #00d3d0;">summary</span> <span style="color: #b6a0ff;">=</span> df.<span style="color: #00bcff; font-style: italic;">describe</span>(<span style="color: #ff9077;">include</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"all"</span>).<span style="color: #00bcff; font-style: italic;">round</span>(<span style="color: #00bcff;">5</span>).<span style="color: #00bcff; font-style: italic;">to_dict</span>()
+    df.<span style="color: #00d3d0; font-style: italic;">columns</span> <span style="color: #b6a0ff;">=</span> df.<span style="color: #00bcff; font-style: italic;">columns</span>.<span style="color: #00bcff; font-style: italic;">str</span>.<span style="color: #00bcff; font-style: italic;">strip</span>().<span style="color: #00bcff; font-style: italic;">str</span>.<span style="color: #00bcff; font-style: italic;">replace</span>(<span style="color: #79a8ff;">"\s+"</span>, <span style="color: #79a8ff;">""</span>, <span style="color: #ff9077;">regex</span><span style="color: #b6a0ff;">=</span><span style="color: #f78fe7;">True</span>).<span style="color: #00bcff; font-style: italic;">str</span>.<span style="color: #00bcff; font-style: italic;">lower</span>()
+    <span style="color: #00d3d0;">summary</span> <span style="color: #b6a0ff;">=</span> df.<span style="color: #00bcff; font-style: italic;">describe</span>(<span style="color: #ff9077;">include</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"all"</span>).<span style="color: #00bcff; font-style: italic;">round</span>(<span style="color: #00bcff;">2</span>).<span style="color: #00bcff; font-style: italic;">to_dict</span>()
     <span style="color: #00d3d0;">summary</span> <span style="color: #b6a0ff;">=</span> {
         colname: colsummary <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">colname</span>, <span style="color: #00d3d0;">colsummary</span> <span style="color: #b6a0ff;">in</span> summary.<span style="color: #00bcff; font-style: italic;">items</span>() <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">k</span>, <span style="color: #00d3d0;">v</span> <span style="color: #b6a0ff;">in</span> colsummary.<span style="color: #00bcff; font-style: italic;">items</span>() <span style="color: #b6a0ff;">if</span> <span style="color: #b6a0ff;">not</span> pd.<span style="color: #00bcff; font-style: italic;">isna</span>(v)
     }
@@ -1580,15 +1600,6 @@ With the new properties related to the summaries in the nodes, we can now query 
 </pre>
 </div>
 
-<pre class="example">
- d
---------------------------------------------------------------------------------------------------------------------------------------------------------------
- (_5:Data {`25%`: 24.30745, `50%`: 33.5288, `75%`: 50.4053, count: 1407.0, max: 99.5891, mean: 38.06454, min: 1.99448, name: 'normal_stress', std: 19.35634})
- (_23:Data {mean: 20.5, name: 'normal_stress'})
- (_24:Data {mean: 10.5, name: 'normal_stress'})
-</pre>
-
-
 <div class="org-src-container">
 <pre class="src src-jupyter-python">tuitus_db.<span style="color: #00bcff; font-style: italic;">run</span>(<span style="color: #79a8ff;">"MATCH (d:Data {name: 'normal_stress'}) WHERE d.mean &gt; 30 RETURN d"</span>)
 </pre>
@@ -1601,12 +1612,167 @@ With the new properties related to the summaries in the nodes, we can now query 
 </pre>
 </div>
 </div>
+<div id="outline-container-org82b3beb" class="outline-2">
+<h2 id="org82b3beb"><span class="section-number-2">11.</span> Modify project creation to support file path from response JSON</h2>
+<div class="outline-text-2" id="text-11">
+<div class="org-src-container">
+<pre class="src src-jupyter-python"><span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">_create_or_return_node</span>(<span style="color: #00d3d0;">node_type</span>, <span style="color: #00d3d0;">node_key</span>, <span style="color: #00d3d0;">graphdb</span>, <span style="color: #b6a0ff;">**</span><span style="color: #00d3d0;">node_props</span>):
+    <span style="color: #00d3d0;">matching</span> <span style="color: #b6a0ff;">=</span> graphdb.<span style="color: #00bcff; font-style: italic;">nodes</span>.<span style="color: #00bcff; font-style: italic;">match</span>(node_type, <span style="color: #b6a0ff;">**</span>node_props)
+    <span style="color: #b6a0ff;">if</span> <span style="color: #f78fe7;">len</span>(matching) <span style="color: #b6a0ff;">==</span> <span style="color: #00bcff;">0</span>:
+        <span style="color: #00d3d0;">node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Node</span>(node_type, <span style="color: #b6a0ff;">**</span>node_props)
+        graphdb.<span style="color: #00bcff; font-style: italic;">create</span>(node)
+    <span style="color: #b6a0ff;">else</span>:
+        <span style="color: #00d3d0;">node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #f78fe7;">list</span>(matching)[<span style="color: #00bcff;">0</span>]
+    <span style="color: #b6a0ff;">return</span> node
+
+
+<span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">_create_or_return_rel</span>(<span style="color: #00d3d0;">node1</span>, <span style="color: #00d3d0;">node2</span>, <span style="color: #00d3d0;">r_type</span>, <span style="color: #00d3d0;">graphdb</span>):
+    <span style="color: #00d3d0;">matching</span> <span style="color: #b6a0ff;">=</span> graphdb.<span style="color: #00bcff; font-style: italic;">relationships</span>.<span style="color: #00bcff; font-style: italic;">match</span>(<span style="color: #ff9077;">nodes</span><span style="color: #b6a0ff;">=</span>(node1, node2), <span style="color: #ff9077;">r_type</span><span style="color: #b6a0ff;">=</span>r_type)
+    <span style="color: #b6a0ff;">if</span> <span style="color: #f78fe7;">len</span>(matching) <span style="color: #b6a0ff;">==</span> <span style="color: #00bcff;">0</span>:
+        <span style="color: #00d3d0;">rel</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Relationship</span>(node1, r_type, node2)
+        graphdb.<span style="color: #00bcff; font-style: italic;">create</span>(rel)
+    <span style="color: #b6a0ff;">else</span>:
+        <span style="color: #00d3d0;">rel</span> <span style="color: #b6a0ff;">=</span> <span style="color: #f78fe7;">list</span>(matching)[<span style="color: #00bcff;">0</span>]
+    <span style="color: #b6a0ff;">return</span> rel
+
+
+<span style="color: #b6a0ff;">def</span> <span style="color: #feacd0;">create_project_graph</span>(<span style="color: #00d3d0;">project_info</span>, <span style="color: #00d3d0;">project_path</span>, <span style="color: #00d3d0;">graphdb</span>):
+    <span style="color: #00d3d0;">project_id</span> <span style="color: #b6a0ff;">=</span> project_info.<span style="color: #00bcff; font-style: italic;">get</span>(<span style="color: #79a8ff;">"project_id"</span>, <span style="color: #f78fe7;">None</span>)
+    <span style="color: #b6a0ff;">if</span> project_id <span style="color: #b6a0ff;">is</span> <span style="color: #f78fe7;">None</span>:
+        <span style="color: #00d3d0;">project_id</span> <span style="color: #b6a0ff;">=</span> project_info.<span style="color: #00bcff; font-style: italic;">get</span>(<span style="color: #79a8ff;">"projectId"</span>, <span style="color: #f78fe7;">None</span>)
+    <span style="color: #b6a0ff;">if</span> project_id <span style="color: #b6a0ff;">is</span> <span style="color: #f78fe7;">None</span>:
+        <span style="color: #b6a0ff;">raise</span> <span style="color: #6ae4b9;">KeyError</span>(<span style="color: #79a8ff;">"project_id or projectId not found in project info."</span>)
+
+    <span style="color: #00d3d0;">project_props</span> <span style="color: #b6a0ff;">=</span> {<span style="color: #79a8ff;">"name"</span>: project_id}
+    <span style="color: #00d3d0;">project_node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">_create_or_return_node</span>(
+        <span style="color: #79a8ff;">"Project"</span>, {<span style="color: #79a8ff;">"name"</span>: project_id}, graphdb, <span style="color: #b6a0ff;">**</span>project_props
+    )
+
+    <span style="color: #00d3d0;">pi</span> <span style="color: #b6a0ff;">=</span> project_info[<span style="color: #79a8ff;">"project"</span>][<span style="color: #79a8ff;">"value"</span>][<span style="color: #79a8ff;">"pi"</span>]
+    <span style="color: #00d3d0;">pi_props</span> <span style="color: #b6a0ff;">=</span> {<span style="color: #79a8ff;">"name"</span>: pi}
+    <span style="color: #00d3d0;">pi_node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">_create_or_return_node</span>(
+        <span style="color: #79a8ff;">"Author"</span>, {<span style="color: #79a8ff;">"name"</span>: pi}, graphdb, <span style="color: #b6a0ff;">**</span>pi_props
+    )
+    <span style="color: #00d3d0;">pi_project_rel</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Relationship</span>(pi_node, <span style="color: #79a8ff;">"SUPERVISES"</span>, project_node)
+    graphdb.<span style="color: #00bcff; font-style: italic;">create</span>(pi_project_rel)
+
+    <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">nh</span> <span style="color: #b6a0ff;">in</span> project_info[<span style="color: #79a8ff;">"project"</span>][<span style="color: #79a8ff;">"value"</span>].<span style="color: #00bcff; font-style: italic;">get</span>(<span style="color: #79a8ff;">"nhTypes"</span>, []):
+        <span style="color: #00d3d0;">nh_props</span> <span style="color: #b6a0ff;">=</span> {<span style="color: #79a8ff;">"name"</span>: nh}
+        <span style="color: #00d3d0;">nh_node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">_create_or_return_node</span>(
+            <span style="color: #79a8ff;">"Hazard"</span>, nh_props, graphdb, <span style="color: #b6a0ff;">**</span>nh_props
+        )
+        <span style="color: #00bcff;">_create_or_return_rel</span>(project_node, nh_node, <span style="color: #79a8ff;">"NATURAL_HAZARD"</span>, graphdb)
+
+    <span style="color: #00d3d0;">project_type</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">_create_or_return_node</span>(
+        <span style="color: #79a8ff;">"PROJECT_TYPE"</span>,
+        {<span style="color: #79a8ff;">"name"</span>: <span style="color: #79a8ff;">"experimental"</span>},
+        graphdb,
+        <span style="color: #b6a0ff;">**</span>{<span style="color: #79a8ff;">"name"</span>: <span style="color: #79a8ff;">"experimental"</span>},
+    )
+    <span style="color: #00bcff;">_create_or_return_rel</span>(project_node, project_type, <span style="color: #79a8ff;">"TYPE"</span>, graphdb)
+    <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">exp</span> <span style="color: #b6a0ff;">in</span> <span style="color: #00bcff;">tqdm</span>(
+        project_info[<span style="color: #79a8ff;">"experimentsList"</span>], <span style="color: #ff9077;">desc</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"Experiment"</span>, <span style="color: #ff9077;">leave</span><span style="color: #b6a0ff;">=</span><span style="color: #f78fe7;">False</span>
+    ):
+        <span style="color: #00d3d0;">experiment_props</span> <span style="color: #b6a0ff;">=</span> {
+            <span style="color: #79a8ff;">"uuid"</span>: exp[<span style="color: #79a8ff;">"uuid"</span>],
+            <span style="color: #79a8ff;">"title"</span>: exp[<span style="color: #79a8ff;">"value"</span>][<span style="color: #79a8ff;">"title"</span>],
+        }
+        <span style="color: #00d3d0;">exp_node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">_create_or_return_node</span>(
+            <span style="color: #79a8ff;">"Experiment"</span>, {<span style="color: #79a8ff;">"uuid"</span>: exp[<span style="color: #79a8ff;">"uuid"</span>]}, graphdb, <span style="color: #b6a0ff;">**</span>experiment_props
+        )
+        <span style="color: #00d3d0;">_</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">_create_or_return_rel</span>(
+            project_node, exp_node, <span style="color: #79a8ff;">"HAS_EXPERIMENT"</span>, graphdb
+        )
+
+    <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">model</span> <span style="color: #b6a0ff;">in</span> <span style="color: #00bcff;">tqdm</span>(project_info[<span style="color: #79a8ff;">"modelConfigs"</span>], <span style="color: #ff9077;">desc</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"Model"</span>, <span style="color: #ff9077;">leave</span><span style="color: #b6a0ff;">=</span><span style="color: #f78fe7;">False</span>):
+        <span style="color: #00d3d0;">model_props</span> <span style="color: #b6a0ff;">=</span> {
+            <span style="color: #79a8ff;">"uuid"</span>: model[<span style="color: #79a8ff;">"uuid"</span>],
+            <span style="color: #79a8ff;">"title"</span>: model[<span style="color: #79a8ff;">"value"</span>][<span style="color: #79a8ff;">"title"</span>],
+        }
+        <span style="color: #00d3d0;">model_node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">_create_or_return_node</span>(
+            <span style="color: #79a8ff;">"Model"</span>, {<span style="color: #79a8ff;">"uuid"</span>: model[<span style="color: #79a8ff;">"uuid"</span>]}, graphdb, <span style="color: #b6a0ff;">**</span>model_props
+        )
+        <span style="color: #00d3d0;">model_exps</span> <span style="color: #b6a0ff;">=</span> model[<span style="color: #79a8ff;">"value"</span>][<span style="color: #79a8ff;">"experiments"</span>]
+        <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">exp_uuid</span> <span style="color: #b6a0ff;">in</span> model_exps:
+            <span style="color: #00d3d0;">exp_matching</span> <span style="color: #b6a0ff;">=</span> graphdb.<span style="color: #00bcff; font-style: italic;">nodes</span>.<span style="color: #00bcff; font-style: italic;">match</span>(<span style="color: #79a8ff;">"Experiment"</span>, <span style="color: #ff9077;">uuid</span><span style="color: #b6a0ff;">=</span>exp_uuid)
+            <span style="color: #b6a0ff;">if</span> <span style="color: #f78fe7;">len</span>(exp_matching) <span style="color: #b6a0ff;">&gt;</span> <span style="color: #00bcff;">0</span>:
+                <span style="color: #00d3d0;">exp_node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #f78fe7;">list</span>(exp_matching)[<span style="color: #00bcff;">0</span>]
+                <span style="color: #00d3d0;">_</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">_create_or_return_rel</span>(
+                    exp_node, model_node, <span style="color: #79a8ff;">"HAS_MODEL"</span>, graphdb
+                )
+
+    <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">event</span> <span style="color: #b6a0ff;">in</span> <span style="color: #00bcff;">tqdm</span>(project_info[<span style="color: #79a8ff;">"eventsList"</span>], <span style="color: #ff9077;">desc</span><span style="color: #b6a0ff;">=</span><span style="color: #79a8ff;">"Events"</span>, <span style="color: #ff9077;">leave</span><span style="color: #b6a0ff;">=</span><span style="color: #f78fe7;">False</span>):
+        <span style="color: #00d3d0;">event_props</span> <span style="color: #b6a0ff;">=</span> {
+            <span style="color: #79a8ff;">"title"</span>: event[<span style="color: #79a8ff;">"value"</span>][<span style="color: #79a8ff;">"title"</span>],
+        }
+        <span style="color: #00d3d0;">event_node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">_create_or_return_node</span>(
+            <span style="color: #79a8ff;">"Event"</span>, {<span style="color: #79a8ff;">"title"</span>: event_props[<span style="color: #79a8ff;">"title"</span>]}, graphdb, <span style="color: #b6a0ff;">**</span>event_props
+        )
+        <span style="color: #00d3d0;">event_exps</span> <span style="color: #b6a0ff;">=</span> event[<span style="color: #79a8ff;">"value"</span>][<span style="color: #79a8ff;">"experiments"</span>]
+        <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">exp_uuid</span> <span style="color: #b6a0ff;">in</span> event_exps:
+            <span style="color: #00d3d0;">exp_matching</span> <span style="color: #b6a0ff;">=</span> graphdb.<span style="color: #00bcff; font-style: italic;">nodes</span>.<span style="color: #00bcff; font-style: italic;">match</span>(<span style="color: #79a8ff;">"Experiment"</span>, <span style="color: #ff9077;">uuid</span><span style="color: #b6a0ff;">=</span>exp_uuid)
+            <span style="color: #b6a0ff;">if</span> <span style="color: #f78fe7;">len</span>(exp_matching) <span style="color: #b6a0ff;">&gt;</span> <span style="color: #00bcff;">0</span>:
+                <span style="color: #00d3d0;">exp_node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #f78fe7;">list</span>(exp_matching)[<span style="color: #00bcff;">0</span>]
+                <span style="color: #00d3d0;">_</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">_create_or_return_rel</span>(
+                    exp_node, event_node, <span style="color: #79a8ff;">"HAS_EVENT"</span>, graphdb
+                )
+
+        <span style="color: #00d3d0;">event_models</span> <span style="color: #b6a0ff;">=</span> event[<span style="color: #79a8ff;">"value"</span>][<span style="color: #79a8ff;">"modelConfigs"</span>]
+        <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">model_uuid</span> <span style="color: #b6a0ff;">in</span> event_models:
+            <span style="color: #00d3d0;">model_matching</span> <span style="color: #b6a0ff;">=</span> graphdb.<span style="color: #00bcff; font-style: italic;">nodes</span>.<span style="color: #00bcff; font-style: italic;">match</span>(<span style="color: #79a8ff;">"Model"</span>, <span style="color: #ff9077;">uuid</span><span style="color: #b6a0ff;">=</span>model_uuid)
+            <span style="color: #b6a0ff;">if</span> <span style="color: #f78fe7;">len</span>(model_matching) <span style="color: #b6a0ff;">&gt;</span> <span style="color: #00bcff;">0</span>:
+                <span style="color: #00d3d0;">model_node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #f78fe7;">list</span>(model_matching)[<span style="color: #00bcff;">0</span>]
+                <span style="color: #00d3d0;">event_model_rel</span> <span style="color: #b6a0ff;">=</span> <span style="color: #6ae4b9;">Relationship</span>(
+                    model_node, <span style="color: #79a8ff;">"HAS_EVENT"</span>, event_node
+                )
+                graphdb.<span style="color: #00bcff; font-style: italic;">create</span>(event_model_rel)
+                <span style="color: #00bcff;">_create_or_return_rel</span>(
+                    model_node, event_node, <span style="color: #79a8ff;">"HAS_EVENT"</span>, graphdb
+                )
+
+        <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">fdict</span> <span style="color: #b6a0ff;">in</span> event[<span style="color: #79a8ff;">"fileObjs"</span>]:
+            <span style="color: #00d3d0;">f</span> <span style="color: #b6a0ff;">=</span> fdict[<span style="color: #79a8ff;">"path"</span>][<span style="color: #00bcff;">1</span>:]
+            <span style="color: #a8a8a8;"># extension = os.path.splitext(f)[1].lower()</span>
+            <span style="color: #a8a8a8;"># if extension not in {".txt", ".csv"}:</span>
+            <span style="color: #a8a8a8;">#     continue</span>
+            <span style="color: #00d3d0;">filepath</span> <span style="color: #b6a0ff;">=</span> os.<span style="color: #00bcff; font-style: italic;">path</span>.<span style="color: #00bcff; font-style: italic;">join</span>(project_path, project_id, f)
+            <span style="color: #00d3d0;">file_node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">_create_or_return_node</span>(
+                <span style="color: #79a8ff;">"File"</span>,
+                {<span style="color: #79a8ff;">"filepath"</span>: filepath},
+                graphdb,
+                <span style="color: #b6a0ff;">**</span>{<span style="color: #79a8ff;">"filepath"</span>: filepath},
+            )
+            <span style="color: #00d3d0;">_</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">_create_or_return_rel</span>(
+                event_node, file_node, <span style="color: #79a8ff;">"HAS_FILE"</span>, graphdb
+            )
+            <span style="color: #00d3d0;">_</span>, <span style="color: #00d3d0;">summary</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">summarize_csv</span>(filepath)
+            <span style="color: #b6a0ff;">for</span> <span style="color: #00d3d0;">key</span>, <span style="color: #00d3d0;">props</span> <span style="color: #b6a0ff;">in</span> summary.<span style="color: #00bcff; font-style: italic;">items</span>():
+                <span style="color: #b6a0ff;">if</span> <span style="color: #b6a0ff;">not</span> <span style="color: #f78fe7;">isinstance</span>(props, dict):
+                    <span style="color: #00d3d0;">props</span> <span style="color: #b6a0ff;">=</span> {key: props}
+                <span style="color: #00d3d0;">col_props</span> <span style="color: #b6a0ff;">=</span> {<span style="color: #79a8ff;">"name"</span>: key, <span style="color: #b6a0ff;">**</span>props}
+                <span style="color: #00d3d0;">column_node</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">_create_or_return_node</span>(
+                    <span style="color: #79a8ff;">"Data"</span>, {<span style="color: #79a8ff;">"name"</span>: key}, graphdb, <span style="color: #b6a0ff;">**</span>col_props
+                )
+                <span style="color: #00d3d0;">_</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">_create_or_return_rel</span>(
+                    project_node, column_node, <span style="color: #79a8ff;">"RECORDS"</span>, graphdb
+                )
+                <span style="color: #00d3d0;">_</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">_create_or_return_rel</span>(
+                    event_node, column_node, <span style="color: #79a8ff;">"RECORDS"</span>, graphdb
+                )
+                <span style="color: #00d3d0;">_</span> <span style="color: #b6a0ff;">=</span> <span style="color: #00bcff;">_create_or_return_rel</span>(
+                    file_node, column_node, <span style="color: #79a8ff;">"RECORDS"</span>, graphdb
+                )
+    <span style="color: #b6a0ff;">return</span>
+</pre>
+</div>
+</div>
+</div>
 </div>
 <div id="postamble" class="status">
 <hr/>
 <footer>
 <div class="generated">
-Created with <a href="https://www.gnu.org/software/emacs/">Emacs</a> 28.2 (<a href="https://orgmode.org">Org</a> mode 9.6)
+Created with <a href="https://www.gnu.org/software/emacs/">Emacs</a> 28.2 (<a href="https://orgmode.org">Org</a> mode 9.6.1)
 </div>
 </footer>
 </div>

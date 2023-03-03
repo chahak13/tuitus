@@ -894,7 +894,7 @@ import os
 from py2neo import Graph, Node, Relationship
 
 def _create_or_return_node(node_type, node_key, graphdb, **node_props):
-    matching = graphdb.nodes.match(node_type, **node_key)
+    matching = graphdb.nodes.match(node_type, **node_props)
     if len(matching) == 0:
         node = Node(node_type, **node_props)
         graphdb.create(node)
@@ -977,7 +977,12 @@ def create_project_graph(project_info, project_path, graphdb):
                 os.path.join(project_path, project_id, event_props["title"])
         ):
             for f in files:
-                _, summary = summarize_csv(os.path.join(root, f))
+                filepath = os.path.join(root, f)
+                file_node = _create_or_return_node("File", {"filepath": filepath}, graphdb, **{"filepath": filepath})
+                if len(graphdb.relationships.match(nodes=(event_node, file_node), r_type="HAS_FILE")) == 0:
+                    event_file_rel = Relationship(event_node, "HAS_FILE", file_node)
+                    graphdb.create(event_file_rel)
+                _, summary = summarize_csv(filepath)
                 for key, props in summary.items():
                     if not isinstance(props, dict):
                         props = {key: props}
@@ -991,6 +996,9 @@ def create_project_graph(project_info, project_path, graphdb):
                     if len(graphdb.relationships.match(nodes=(event_node, column_node), r_type="RECORDS")) == 0:
                         col_event_rel = Relationship(event_node, "RECORDS", column_node)
                         graphdb.create(col_event_rel)
+                    if len(graphdb.relationships.match(nodes=(file_node, column_node), r_type="RECORDS")) == 0:
+                        col_file_rel = Relationship(file_node, "RECORDS", column_node)
+                        graphdb.create(col_file_rel)
     return
 
 create_project_graph(response_json, "./", tuitus_db)
@@ -1039,8 +1047,8 @@ def summarize_csv(filepath):
         df = pd.read_csv(filepath, engine="python", sep=None)
     else:
         return None, dict()
-    df.columns = df.columns.str.strip().str.replace("\s+", " ", regex=True).str.lower().str.replace(" ", "_")
-    summary = df.describe(include="all").round(5).to_dict()
+    df.columns = df.columns.str.strip().str.replace("\s+", "", regex=True).str.lower()
+    summary = df.describe(include="all").round(2).to_dict()
     summary = {
         colname: colsummary for colname, colsummary in summary.items() for k, v in colsummary.items() if not pd.isna(v)
     }
@@ -1059,19 +1067,14 @@ def summarize_csv(filepath):
 df, summary = summarize_csv("PRJ-1783/Cyclic Stress-Controlled Triaxial Tests/eo_0_515_po_100/eo_0_515_po_100_csr_0_3.txt")
 #+end_src
 
+#+RESULTS:
+
 * Querying database using =py2neo=
 With the new properties related to the summaries in the nodes, we can now query them to get information filtered on the values from the summary. For example, there are a total of 3 =Data= nodes in the graph with means 20.5, 30.5, 38.06454 respectively. We can now query for all the Nodes which have a mean higher than 30.
 
 #+begin_src jupyter-python
 tuitus_db.run("MATCH (d:Data {name: 'normal_stress'}) RETURN d")
 #+end_src
-
-#+RESULTS:
-:  d
-: --------------------------------------------------------------------------------------------------------------------------------------------------------------
-:  (_5:Data {`25%`: 24.30745, `50%`: 33.5288, `75%`: 50.4053, count: 1407.0, max: 99.5891, mean: 38.06454, min: 1.99448, name: 'normal_stress', std: 19.35634})
-:  (_23:Data {mean: 20.5, name: 'normal_stress'})
-:  (_24:Data {mean: 10.5, name: 'normal_stress'})
 
 #+begin_src jupyter-python
 tuitus_db.run("MATCH (d:Data {name: 'normal_stress'}) WHERE d.mean > 30 RETURN d")
@@ -1081,3 +1084,154 @@ tuitus_db.run("MATCH (d:Data {name: 'normal_stress'}) WHERE d.mean > 30 RETURN d
 :  d                                                                                                                                                            
 : --------------------------------------------------------------------------------------------------------------------------------------------------------------
 :  (_5:Data {`25%`: 24.30745, `50%`: 33.5288, `75%`: 50.4053, count: 1407.0, max: 99.5891, mean: 38.06454, min: 1.99448, name: 'normal_stress', std: 19.35634})
+* Modify project creation to support file path from response JSON
+
+#+begin_src jupyter-python
+def _create_or_return_node(node_type, node_key, graphdb, **node_props):
+    matching = graphdb.nodes.match(node_type, **node_props)
+    if len(matching) == 0:
+        node = Node(node_type, **node_props)
+        graphdb.create(node)
+    else:
+        node = list(matching)[0]
+    return node
+
+
+def _create_or_return_rel(node1, node2, r_type, graphdb):
+    matching = graphdb.relationships.match(nodes=(node1, node2), r_type=r_type)
+    if len(matching) == 0:
+        rel = Relationship(node1, r_type, node2)
+        graphdb.create(rel)
+    else:
+        rel = list(matching)[0]
+    return rel
+
+
+def create_project_graph(project_info, project_path, graphdb):
+    project_id = project_info.get("project_id", None)
+    if project_id is None:
+        project_id = project_info.get("projectId", None)
+    if project_id is None:
+        raise KeyError("project_id or projectId not found in project info.")
+
+    project_props = {"name": project_id}
+    project_node = _create_or_return_node(
+        "Project", {"name": project_id}, graphdb, **project_props
+    )
+
+    pi = project_info["project"]["value"]["pi"]
+    pi_props = {"name": pi}
+    pi_node = _create_or_return_node(
+        "Author", {"name": pi}, graphdb, **pi_props
+    )
+    pi_project_rel = Relationship(pi_node, "SUPERVISES", project_node)
+    graphdb.create(pi_project_rel)
+
+    for nh in project_info["project"]["value"].get("nhTypes", []):
+        nh_props = {"name": nh}
+        nh_node = _create_or_return_node(
+            "Hazard", nh_props, graphdb, **nh_props
+        )
+        _create_or_return_rel(project_node, nh_node, "NATURAL_HAZARD", graphdb)
+
+    project_type = _create_or_return_node(
+        "PROJECT_TYPE",
+        {"name": "experimental"},
+        graphdb,
+        **{"name": "experimental"},
+    )
+    _create_or_return_rel(project_node, project_type, "TYPE", graphdb)
+    for exp in tqdm(
+        project_info["experimentsList"], desc="Experiment", leave=False
+    ):
+        experiment_props = {
+            "uuid": exp["uuid"],
+            "title": exp["value"]["title"],
+        }
+        exp_node = _create_or_return_node(
+            "Experiment", {"uuid": exp["uuid"]}, graphdb, **experiment_props
+        )
+        _ = _create_or_return_rel(
+            project_node, exp_node, "HAS_EXPERIMENT", graphdb
+        )
+
+    for model in tqdm(project_info["modelConfigs"], desc="Model", leave=False):
+        model_props = {
+            "uuid": model["uuid"],
+            "title": model["value"]["title"],
+        }
+        model_node = _create_or_return_node(
+            "Model", {"uuid": model["uuid"]}, graphdb, **model_props
+        )
+        model_exps = model["value"]["experiments"]
+        for exp_uuid in model_exps:
+            exp_matching = graphdb.nodes.match("Experiment", uuid=exp_uuid)
+            if len(exp_matching) > 0:
+                exp_node = list(exp_matching)[0]
+                _ = _create_or_return_rel(
+                    exp_node, model_node, "HAS_MODEL", graphdb
+                )
+
+    for event in tqdm(project_info["eventsList"], desc="Events", leave=False):
+        event_props = {
+            "title": event["value"]["title"],
+        }
+        event_node = _create_or_return_node(
+            "Event", {"title": event_props["title"]}, graphdb, **event_props
+        )
+        event_exps = event["value"]["experiments"]
+        for exp_uuid in event_exps:
+            exp_matching = graphdb.nodes.match("Experiment", uuid=exp_uuid)
+            if len(exp_matching) > 0:
+                exp_node = list(exp_matching)[0]
+                _ = _create_or_return_rel(
+                    exp_node, event_node, "HAS_EVENT", graphdb
+                )
+
+        event_models = event["value"]["modelConfigs"]
+        for model_uuid in event_models:
+            model_matching = graphdb.nodes.match("Model", uuid=model_uuid)
+            if len(model_matching) > 0:
+                model_node = list(model_matching)[0]
+                event_model_rel = Relationship(
+                    model_node, "HAS_EVENT", event_node
+                )
+                graphdb.create(event_model_rel)
+                _create_or_return_rel(
+                    model_node, event_node, "HAS_EVENT", graphdb
+                )
+
+        for fdict in event["fileObjs"]:
+            f = fdict["path"][1:]
+            # extension = os.path.splitext(f)[1].lower()
+            # if extension not in {".txt", ".csv"}:
+            #     continue
+            filepath = os.path.join(project_path, project_id, f)
+            file_node = _create_or_return_node(
+                "File",
+                {"filepath": filepath},
+                graphdb,
+                **{"filepath": filepath},
+            )
+            _ = _create_or_return_rel(
+                event_node, file_node, "HAS_FILE", graphdb
+            )
+            _, summary = summarize_csv(filepath)
+            for key, props in summary.items():
+                if not isinstance(props, dict):
+                    props = {key: props}
+                col_props = {"name": key, **props}
+                column_node = _create_or_return_node(
+                    "Data", {"name": key}, graphdb, **col_props
+                )
+                _ = _create_or_return_rel(
+                    project_node, column_node, "RECORDS", graphdb
+                )
+                _ = _create_or_return_rel(
+                    event_node, column_node, "RECORDS", graphdb
+                )
+                _ = _create_or_return_rel(
+                    file_node, column_node, "RECORDS", graphdb
+                )
+    return
+#+end_src
