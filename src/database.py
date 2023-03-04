@@ -20,11 +20,14 @@ def summarize_csv(filepath):
     records the increments used in the first column of the CSV.
     """
     extension = os.path.splitext(filepath)[1].lower()
-    if extension == ".csv":
-        df = pd.read_csv(filepath)
-    elif extension == ".txt":
-        df = pd.read_csv(filepath, engine="python", sep=None)
-    else:
+    try:
+        if extension == ".csv":
+            df = pd.read_csv(filepath)
+        elif extension == ".txt":
+            df = pd.read_csv(filepath, engine="python", sep=None)
+        else:
+            return None, dict()
+    except Exception:
         return None, dict()
     df.columns = (
         df.columns.str.strip().str.replace("\s+", "", regex=True).str.lower()
@@ -169,37 +172,43 @@ def create_project_graph(project_info, project_path, graphdb):
             # if extension not in {".txt", ".csv"}:
             #     continue
             filepath = os.path.join(project_path, project_id, f)
-            file_node = _create_or_return_node(
-                "File",
-                {"filepath": filepath},
-                graphdb,
-                **{"filepath": filepath},
-            )
-            _ = _create_or_return_rel(
-                event_node, file_node, "HAS_FILE", graphdb
-            )
-            _, summary = summarize_csv(filepath)
-            for key, props in summary.items():
-                if not isinstance(props, dict):
-                    props = {key: props}
-                col_props = {"name": key, **props}
-                column_node = _create_or_return_node(
-                    "Data", {"name": key}, graphdb, **col_props
-                )
-                _ = _create_or_return_rel(
-                    project_node, column_node, "RECORDS", graphdb
-                )
-                _ = _create_or_return_rel(
-                    event_node, column_node, "RECORDS", graphdb
-                )
-                _ = _create_or_return_rel(
-                    file_node, column_node, "RECORDS", graphdb
-                )
+            if not os.path.isdir(filepath):
+                _create_file_nodes(filepath, event_node, project_node, graphdb)
+            else:
+                for root, dirs, files in os.walk(filepath):
+                    for f in files:
+                        _create_file_nodes(
+                            os.path.join(root, f),
+                            event_node,
+                            project_node,
+                            graphdb,
+                        )
     return
 
 
-for projectId in tqdm(["PRJ-3484", "PRJ-2136", "PRJ-2557"], desc="Project"):
-    # projectId = "PRJ-3484"
+def _create_file_nodes(filepath, event_node, project_node, graphdb):
+    file_node = _create_or_return_node(
+        "File",
+        {"filepath": filepath},
+        graphdb,
+        **{"filepath": filepath},
+    )
+    _ = _create_or_return_rel(event_node, file_node, "HAS_FILE", graphdb)
+    _, summary = summarize_csv(filepath)
+    for key, props in summary.items():
+        if not isinstance(props, dict):
+            props = {key: props}
+        col_props = {"name": key, **props}
+        column_node = _create_or_return_node(
+            "Data", {"name": key}, graphdb, **col_props
+        )
+        _ = _create_or_return_rel(project_node, column_node, "RECORDS", graphdb)
+        _ = _create_or_return_rel(event_node, column_node, "RECORDS", graphdb)
+        _ = _create_or_return_rel(file_node, column_node, "RECORDS", graphdb)
+    return
+
+
+for projectId in tqdm(["PRJ-2136", "PRJ-2557", "PRJ-3484"], desc="Project"):
     url = f"https://designsafe-ci.org/api/projects/publication/{projectId}"
 
     payload = ""
@@ -209,4 +218,4 @@ for projectId in tqdm(["PRJ-3484", "PRJ-2136", "PRJ-2557"], desc="Project"):
     response_json = response.json()
 
     create_project_graph(response_json, "../test/", tuitus_db)
-    # break
+    break
