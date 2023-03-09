@@ -89,7 +89,7 @@ Created with %c
 
         ("static"
          :base-directory ,publish-tuitus-base-dir
-         :base-extension "css\\|txt\\|jpg\\|gif\\|png"
+         :base-extension "css\\|txt\\|jpg\\|gif\\|png\\|svg"
          :recursive t
          :publishing-directory ,publish-tuitus-publish-dir
          :publishing-function org-publish-attachment)

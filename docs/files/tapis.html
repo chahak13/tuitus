@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- 2023-03-03 Fri 21:33 -->
+<!-- 2023-03-09 Thu 13:42 -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Tapis</title>
@@ -43,7 +43,7 @@
 </head>
 <body>
 <div id="preamble" class="status">
-<div id="updated">Updated: 2023-03-03 Fri 21:32</div>
+<div id="updated">Updated: 2023-03-09 Thu 13:42</div>
 <nav>
 <a href="/tuitus/">Home</a>
 <a href="/tuitus/files/sitemap.html">Posts</a>
@@ -79,6 +79,7 @@
 <li><a href="#org0522026">10. Querying database using <kbd>py2neo</kbd></a></li>
 <li><a href="#org82b3beb">11. Modify project creation to support file path from response JSON</a></li>
 <li><a href="#orgdf6d950">12. Query example to show data in range</a></li>
+<li><a href="#org791f994">13. Complete graph for 3 LEAP projects</a></li>
 </ul>
 </div>
 </nav>
@@ -560,7 +561,7 @@ To register a pod, we use the <code>pods.create_pod()</code> method.
 </pre>
 </div>
 
-<pre class="example" id="org9e2332c">
+<pre class="example" id="orgef5018b">
 
   command: None
   creation_ts: 2023-01-06T15:34:20.551402
@@ -606,7 +607,7 @@ The details and status of this <kbd>REQUESTED</kbd> pod can be accessed using th
 </pre>
 </div>
 
-<pre class="example" id="org7415258">
+<pre class="example" id="org6533d1f">
 
 command: None
 creation_ts: 2023-01-06T15:34:20.551402
@@ -652,7 +653,7 @@ The logs can be retrieved using the <code>get_pod_logs()</code> method.
 </pre>
 </div>
 
-<pre class="example" id="orgc777f3c">
+<pre class="example" id="org1b5ec92">
 
 logs: 2023-01-06 16:06:39.132+0000 INFO  Starting...
 2023-01-06 16:06:40.347+0000 INFO  This instance is ServerId{e6102ec8} (e6102ec8-c9a0-4650-b0df-b523b7475f5a)
@@ -679,7 +680,7 @@ List of all pods - <code>get_pods()</code>
 </pre>
 </div>
 
-<pre class="example" id="orgb8f3e77">
+<pre class="example" id="orgf8551c9">
 [
 command: None
 creation_ts: 2023-01-06T15:34:20.551402
@@ -809,7 +810,7 @@ Using the <code>systemId</code> as <kbd>designsafe.storage.default</kbd>, fetch 
 </pre>
 </div>
 
-<pre class="example" id="org172dadd">
+<pre class="example" id="org284e987">
   ---------------------------------------------------------------------------
   NotFoundError                             Traceback (most recent call last)
   Cell In[6], line 1
@@ -886,7 +887,7 @@ Using the <code>requests</code> module, we can create a request to <kbd>https://
 </pre>
 </div>
 
-<pre class="example" id="org07afac7">
+<pre class="example" id="orgddcc9a1">
 {'listing': [{'created': '2023-01-09T21:13:07.982682',
               'pi': 'Zhang, Wenyang',
               'project': {'value': {'keywords': 'Physics-based ground motion '
@@ -962,7 +963,7 @@ For a given <kbd>projectId</kbd>, we need to get all the result files. The infor
 </pre>
 </div>
 
-<pre class="example" id="orgd8db907">
+<pre class="example" id="org8e210e8">
 {'files': [{'name': 'eo_0_601_sigv_100_CSR_0_150_Tau_40_.csv',
             'path': '/eo_0_601_sigv_100_CSR_0_150_Tau_40_.csv',
             'system': 'project-3122606422211489300-242ac118-0001-012',
@@ -1102,7 +1103,7 @@ This downloads the project files and stores the files in the following structure
 </pre>
 </div>
 
-<pre class="example" id="orgf432e3c">
+<pre class="example" id="org1604fde">
 PRJ-3484
 ├── CDSS tests with Sig_v = 100 kPa, Dr = 66.7%, Alpha = 0
 │   ├── eo_0_600_sigv_100_CSR_0_170_Tau_0_.csv
@@ -1359,7 +1360,7 @@ This generates a graph db that can now answer the query mentioned above.
 
 
 
-<figure id="org1df1231">
+<figure id="orgb1c667c">
 <img src="../assets/2023-01-30_16-18-10_screenshot.png" alt="2023-01-30_16-18-10_screenshot.png">
 
 </figure>
@@ -1514,7 +1515,7 @@ With this, we now have a much dense graph with relationships that can be queried
 </p>
 
 
-<figure id="orgf46852b">
+<figure id="org6e8a370">
 <img src="../assets/Extract_experiment_and_model_config_information_from_the_project_JSON/2023-02-01_13-26-07_screenshot.png" alt="2023-02-01_13-26-07_screenshot.png" width="60%">
 
 </figure>
@@ -1530,7 +1531,7 @@ List all the projects, experiments, models and events that record &ldquo;axial<s
 </blockquote>
 
 
-<figure id="orgdc7f601">
+<figure id="org570d2c1">
 <img src="../assets/Extract_experiment_and_model_config_information_from_the_project_JSON/2023-02-01_13-34-40_screenshot.png" alt="2023-02-01_13-34-40_screenshot.png" width="60%">
 
 </figure>
@@ -1772,8 +1773,18 @@ With the new properties related to the summaries in the nodes, we can now query 
 <h2 id="orgdf6d950"><span class="section-number-2">12.</span> Query example to show data in range</h2>
 <div class="outline-text-2" id="text-12">
 
-<figure id="org9d0dc9c">
+<figure id="org861223d">
 <img src="../assets/Query_example_to_show_data_in_range/2023-03-03_21-31-39_screenshot.png" alt="2023-03-03_21-31-39_screenshot.png" width="60%">
+
+</figure>
+</div>
+</div>
+<div id="outline-container-org791f994" class="outline-2">
+<h2 id="org791f994"><span class="section-number-2">13.</span> Complete graph for 3 LEAP projects</h2>
+<div class="outline-text-2" id="text-13">
+
+<figure id="org98bb089">
+<img src="../assets/full_graph.svg" alt="full_graph.svg" class="org-svg" width="70%">
 
 </figure>
 </div>
