@@ -1,0 +1,5 @@
+#+title: tuitus
+
+This repository contains the code used to create a prototype graph database
+engine on DesignSafe at Texas Advanced Computing Center (TACC). It uses Neo4J as
+the graph database and uses ~py2neo~ to connect to the database.
